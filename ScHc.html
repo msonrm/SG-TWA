@@ -89,8 +89,8 @@
         }
 
         .chart-container {
-            width: 83.33%;
-            max-width: 600px;
+            width: 100%;
+            max-width: 100%;
             display: none;
             margin: 0 auto;
         }
@@ -99,13 +99,7 @@
             display: block;
         }
 
-        #shieldCanvas {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        #houseCanvas1, #houseCanvas2 {
+        #shieldCanvas, #houseCanvas1, #houseCanvas2 {
             width: 100%;
             height: auto;
             display: block;
@@ -118,12 +112,6 @@
             font-size: 32px;
             color: #666;
             cursor: pointer;
-        }
-
-        .placeholder {
-            text-align: center;
-            color: #999;
-            font-size: 16px;
         }
     </style>
 </head>
@@ -180,7 +168,16 @@
         const mothers = symbolsParam ? symbolsParam.split(',') : ['2211', '1122', '2121', '1212'];
 
         let canvas, ctx;
-        const CANVAS_SIZE = 800;
+        
+        function getCanvasSize() {
+            const screenWidth = window.innerWidth;
+            const unit = screenWidth / 10;
+            return {
+                canvasWidth: unit * 10,
+                canvasHeight: unit * 10,
+                unit: unit
+            };
+        }
 
         function switchTab(index) {
             document.querySelectorAll('.tab').forEach((tab, i) => {
@@ -220,65 +217,74 @@
         function initCanvas() {
             canvas = document.getElementById('shieldCanvas');
             ctx = canvas.getContext('2d');
-            canvas.width = CANVAS_SIZE;
-            canvas.height = CANVAS_SIZE;
+            
+            const { canvasWidth, canvasHeight } = getCanvasSize();
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
         }
 
         function drawGrid() {
+            const { canvasWidth, unit } = getCanvasSize();
+            
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
 
-            ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            const gridSize = unit * 8;
+            const offsetX = unit;
+            const offsetY = unit;
+            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
 
             const rowHeights = [
-                CANVAS_SIZE * 0.25,
-                CANVAS_SIZE * 0.50,
-                CANVAS_SIZE * 0.75,
-                CANVAS_SIZE
+                offsetY + gridSize * 0.25,
+                offsetY + gridSize * 0.50,
+                offsetY + gridSize * 0.75,
+                offsetY + gridSize
             ];
 
             for (let i = 0; i < rowHeights.length - 1; i++) {
                 ctx.beginPath();
-                ctx.moveTo(0, rowHeights[i]);
-                ctx.lineTo(CANVAS_SIZE, rowHeights[i]);
+                ctx.moveTo(offsetX, rowHeights[i]);
+                ctx.lineTo(offsetX + gridSize, rowHeights[i]);
                 ctx.stroke();
             }
 
-            const topColWidth = CANVAS_SIZE / 8;
+            const topColWidth = gridSize / 8;
             for (let i = 1; i < 8; i++) {
                 ctx.beginPath();
-                ctx.moveTo(topColWidth * i, 0);
-                ctx.lineTo(topColWidth * i, rowHeights[0]);
+                ctx.moveTo(offsetX + topColWidth * i, offsetY);
+                ctx.lineTo(offsetX + topColWidth * i, rowHeights[0]);
                 ctx.stroke();
             }
 
-            const midColWidth = CANVAS_SIZE / 4;
+            const midColWidth = gridSize / 4;
             for (let i = 1; i < 4; i++) {
                 ctx.beginPath();
-                ctx.moveTo(midColWidth * i, rowHeights[0]);
-                ctx.lineTo(midColWidth * i, rowHeights[1]);
+                ctx.moveTo(offsetX + midColWidth * i, rowHeights[0]);
+                ctx.lineTo(offsetX + midColWidth * i, rowHeights[1]);
                 ctx.stroke();
             }
 
             ctx.beginPath();
-            ctx.moveTo(CANVAS_SIZE / 2, rowHeights[1]);
-            ctx.lineTo(CANVAS_SIZE / 2, rowHeights[2]);
+            ctx.moveTo(offsetX + gridSize / 2, rowHeights[1]);
+            ctx.lineTo(offsetX + gridSize / 2, rowHeights[2]);
             ctx.stroke();
 
-            const row4Right = CANVAS_SIZE * 3 / 4;
+            const row4Right = gridSize * 3 / 4;
+            
             ctx.beginPath();
-            ctx.moveTo(row4Right, rowHeights[2]);
-            ctx.lineTo(row4Right, rowHeights[3]);
+            ctx.moveTo(offsetX + row4Right, rowHeights[2]);
+            ctx.lineTo(offsetX + row4Right, rowHeights[3]);
             ctx.stroke();
         }
 
         function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
+            const { unit } = getCanvasSize();
             const img = new Image();
             img.src = `${pattern}.png`;
             
             img.onload = () => {
                 const imgAspect = 2 / 3;
-                const baseWidth = CANVAS_SIZE / 8;
+                const baseWidth = unit;
                 const baseHeight = baseWidth / imgAspect;
                 
                 const x = cellX + (cellWidth - baseWidth) / 2;
@@ -289,7 +295,12 @@
         }
 
         function drawShieldChart() {
-            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
+            const gridSize = unit * 8;
+            const offsetX = unit;
+            const offsetY = unit;
+            
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             drawGrid();
 
             const daughters = generateDaughters(mothers);
@@ -328,44 +339,216 @@
             });
 
             function drawAllSymbols() {
-                const cellWidth = CANVAS_SIZE / 8;
-                const row1Height = CANVAS_SIZE * 0.25;
+                const cellWidth = gridSize / 8;
+                const row1Height = gridSize * 0.25;
 
                 for (let i = 0; i < 4; i++) {
-                    const x = cellWidth * i;
-                    drawSymbol(daughters[3 - i], x, 0, cellWidth, row1Height);
+                    const x = offsetX + cellWidth * i;
+                    drawSymbol(daughters[3 - i], x, offsetY, cellWidth, row1Height);
                 }
 
                 for (let i = 0; i < 4; i++) {
-                    const x = cellWidth * (4 + i);
-                    drawSymbol(mothers[3 - i], x, 0, cellWidth, row1Height);
+                    const x = offsetX + cellWidth * (4 + i);
+                    drawSymbol(mothers[3 - i], x, offsetY, cellWidth, row1Height);
                 }
 
-                const row2Width = CANVAS_SIZE / 4;
-                const row2Height = CANVAS_SIZE * 0.25;
+                const row2Width = gridSize / 4;
+                const row2Height = gridSize * 0.25;
                 for (let i = 0; i < 4; i++) {
-                    const x = row2Width * i;
-                    const y = CANVAS_SIZE * 0.25;
+                    const x = offsetX + row2Width * i;
+                    const y = offsetY + gridSize * 0.25;
                     drawSymbol(nieces[3 - i], x, y, row2Width, row2Height);
                 }
 
-                const row3Width = CANVAS_SIZE / 2;
-                const row3Height = CANVAS_SIZE * 0.25;
+                const row3Width = gridSize / 2;
+                const row3Height = gridSize * 0.25;
                 for (let i = 0; i < 2; i++) {
-                    const x = row3Width * i;
-                    const y = CANVAS_SIZE * 0.50;
+                    const x = offsetX + row3Width * i;
+                    const y = offsetY + gridSize * 0.50;
                     drawSymbol(witnesses[1 - i], x, y, row3Width, row3Height);
                 }
 
-                const row4Height = CANVAS_SIZE * 0.25;
-                const y4 = CANVAS_SIZE * 0.75;
+                const row4Height = gridSize * 0.25;
+                const y4 = offsetY + gridSize * 0.75;
                 
-                drawSymbol(judge, 0, y4, CANVAS_SIZE, row4Height);
+                drawSymbol(judge, offsetX, y4, gridSize, row4Height);
                 
-                const reconcilerX = CANVAS_SIZE * 3 / 4;
-                const reconcilerWidth = CANVAS_SIZE / 4;
+                const reconcilerX = offsetX + gridSize * 3 / 4;
+                const reconcilerWidth = gridSize / 4;
                 drawSymbol(reconciler, reconcilerX, y4, reconcilerWidth, row4Height);
             }
+        }
+
+        function initHouseChart1() {
+            const canvas = document.getElementById('houseCanvas1');
+            const ctx = canvas.getContext('2d');
+            
+            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            
+            const gridSize = unit * 8;
+            const offsetX = unit;
+            const offsetY = unit;
+
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
+            
+            const centerSize = unit * 4;
+            const centerX = offsetX + unit * 2;
+            const centerY = offsetY + unit * 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY);
+            ctx.lineTo(centerX, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX + centerSize, centerY + centerSize);
+            ctx.lineTo(offsetX + gridSize, offsetY + gridSize);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(offsetX + gridSize, offsetY);
+            ctx.lineTo(centerX + centerSize, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY + centerSize);
+            ctx.lineTo(offsetX, offsetY + gridSize);
+            ctx.stroke();
+            
+            const topMid = { x: offsetX + gridSize / 2, y: offsetY };
+            const rightMid = { x: offsetX + gridSize, y: offsetY + gridSize / 2 };
+            const bottomMid = { x: offsetX + gridSize / 2, y: offsetY + gridSize };
+            const leftMid = { x: offsetX, y: offsetY + gridSize / 2 };
+            
+            ctx.beginPath();
+            ctx.moveTo(topMid.x, topMid.y);
+            ctx.lineTo(rightMid.x, rightMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(rightMid.x, rightMid.y);
+            ctx.lineTo(bottomMid.x, bottomMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(bottomMid.x, bottomMid.y);
+            ctx.lineTo(leftMid.x, leftMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(leftMid.x, leftMid.y);
+            ctx.lineTo(topMid.x, topMid.y);
+            ctx.stroke();
+            
+            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
+            
+            drawHouseSymbols(ctx, unit, offsetX, offsetY);
+        }
+
+        function initHouseChart2() {
+            const canvas = document.getElementById('houseCanvas2');
+            const ctx = canvas.getContext('2d');
+            
+            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            
+            const gridSize = unit * 8;
+            const offsetX = unit;
+            const offsetY = unit;
+
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
+            
+            const centerSize = unit * 4;
+            const centerX = offsetX + unit * 2;
+            const centerY = offsetY + unit * 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY);
+            ctx.lineTo(centerX, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX + centerSize, centerY + centerSize);
+            ctx.lineTo(offsetX + gridSize, offsetY + gridSize);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(offsetX + gridSize, offsetY);
+            ctx.lineTo(centerX + centerSize, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY + centerSize);
+            ctx.lineTo(offsetX, offsetY + gridSize);
+            ctx.stroke();
+            
+            const topMid = { x: offsetX + gridSize / 2, y: offsetY };
+            const rightMid = { x: offsetX + gridSize, y: offsetY + gridSize / 2 };
+            const bottomMid = { x: offsetX + gridSize / 2, y: offsetY + gridSize };
+            const leftMid = { x: offsetX, y: offsetY + gridSize / 2 };
+            
+            ctx.beginPath();
+            ctx.moveTo(topMid.x, topMid.y);
+            ctx.lineTo(rightMid.x, rightMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(rightMid.x, rightMid.y);
+            ctx.lineTo(bottomMid.x, bottomMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(bottomMid.x, bottomMid.y);
+            ctx.lineTo(leftMid.x, leftMid.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(leftMid.x, leftMid.y);
+            ctx.lineTo(topMid.x, topMid.y);
+            ctx.stroke();
+            
+            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
+            
+            drawHouseSymbols(ctx, unit, offsetX, offsetY);
+        }
+
+        function drawHouseSymbols(ctx, unit, offsetX, offsetY) {
+            const pattern = '2222';
+            
+            const houses = [
+                { x: offsetX + unit * 1, y: offsetY + unit * 3.25 },
+                { x: offsetX + unit * 1.17, y: offsetY + unit * 5.92 },
+                { x: offsetX + unit * 0.33, y: offsetY + unit * 5.92 },
+                { x: offsetX + unit * 3.5, y: offsetY + unit * 6.25 },
+                { x: offsetX + unit * 5.83, y: offsetY + unit * 5.92 },
+                { x: offsetX + unit * 4.67, y: offsetY + unit * 5.92 },
+                { x: offsetX + unit * 6, y: offsetY + unit * 3.25 },
+                { x: offsetX + unit * 5.83, y: offsetY + unit * 0.58 },
+                { x: offsetX + unit * 4.67, y: offsetY + unit * 0.58 },
+                { x: offsetX + unit * 3.5, y: offsetY + unit * 0.25 },
+                { x: offsetX + unit * 0.33, y: offsetY + unit * 0.58 },
+                { x: offsetX + unit * 1.17, y: offsetY + unit * 0.58 }
+            ];
+
+            houses.forEach(house => {
+                const img = new Image();
+                img.src = `${pattern}.png`;
+                img.onload = () => {
+                    const imgAspect = 2 / 3;
+                    const baseWidth = unit;
+                    const baseHeight = baseWidth / imgAspect;
+                    ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
+                };
+            });
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -374,210 +557,6 @@
             initHouseChart1();
             initHouseChart2();
         });
-
-        function initHouseChart1() {
-            const canvas = document.getElementById('houseCanvas1');
-            const ctx = canvas.getContext('2d');
-            canvas.width = CANVAS_SIZE;
-            canvas.height = CANVAS_SIZE;
-
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            
-            // 外枠
-            ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-            
-            // 中央の正方形（1/2サイズ）
-            const centerSize = CANVAS_SIZE / 2;
-            const centerX = CANVAS_SIZE / 4;
-            const centerY = CANVAS_SIZE / 4;
-            
-            // 対角線（中央正方形の外側のみ）
-            // 左上から中央正方形の左上角まで
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(centerX, centerY);
-            ctx.stroke();
-            
-            // 中央正方形の右下角から右下まで
-            ctx.beginPath();
-            ctx.moveTo(centerX + centerSize, centerY + centerSize);
-            ctx.lineTo(CANVAS_SIZE, CANVAS_SIZE);
-            ctx.stroke();
-            
-            // 右上から中央正方形の右上角まで
-            ctx.beginPath();
-            ctx.moveTo(CANVAS_SIZE, 0);
-            ctx.lineTo(centerX + centerSize, centerY);
-            ctx.stroke();
-            
-            // 中央正方形の左下角から左下まで
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY + centerSize);
-            ctx.lineTo(0, CANVAS_SIZE);
-            ctx.stroke();
-            
-            // 4辺の中央点
-            const topMid = { x: CANVAS_SIZE / 2, y: 0 };
-            const rightMid = { x: CANVAS_SIZE, y: CANVAS_SIZE / 2 };
-            const bottomMid = { x: CANVAS_SIZE / 2, y: CANVAS_SIZE };
-            const leftMid = { x: 0, y: CANVAS_SIZE / 2 };
-            
-            // 上辺中央から右辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(topMid.x, topMid.y);
-            ctx.lineTo(rightMid.x, rightMid.y);
-            ctx.stroke();
-            
-            // 右辺中央から下辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(rightMid.x, rightMid.y);
-            ctx.lineTo(bottomMid.x, bottomMid.y);
-            ctx.stroke();
-            
-            // 下辺中央から左辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(bottomMid.x, bottomMid.y);
-            ctx.lineTo(leftMid.x, leftMid.y);
-            ctx.stroke();
-            
-            // 左辺中央から上辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(leftMid.x, leftMid.y);
-            ctx.lineTo(topMid.x, topMid.y);
-            ctx.stroke();
-            
-            // 中央の正方形
-            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
-            
-            // シンボルを配置
-            drawHouseSymbols(ctx, centerX, centerY, centerSize);
-        }
-
-        function initHouseChart2() {
-            const canvas = document.getElementById('houseCanvas2');
-            const ctx = canvas.getContext('2d');
-            canvas.width = CANVAS_SIZE;
-            canvas.height = CANVAS_SIZE;
-
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            
-            // 外枠
-            ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-            
-            // 中央の正方形（1/2サイズ）
-            const centerSize = CANVAS_SIZE / 2;
-            const centerX = CANVAS_SIZE / 4;
-            const centerY = CANVAS_SIZE / 4;
-            
-            // 対角線（中央正方形の外側のみ）
-            // 左上から中央正方形の左上角まで
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(centerX, centerY);
-            ctx.stroke();
-            
-            // 中央正方形の右下角から右下まで
-            ctx.beginPath();
-            ctx.moveTo(centerX + centerSize, centerY + centerSize);
-            ctx.lineTo(CANVAS_SIZE, CANVAS_SIZE);
-            ctx.stroke();
-            
-            // 右上から中央正方形の右上角まで
-            ctx.beginPath();
-            ctx.moveTo(CANVAS_SIZE, 0);
-            ctx.lineTo(centerX + centerSize, centerY);
-            ctx.stroke();
-            
-            // 中央正方形の左下角から左下まで
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY + centerSize);
-            ctx.lineTo(0, CANVAS_SIZE);
-            ctx.stroke();
-            
-            // 4辺の中央点
-            const topMid = { x: CANVAS_SIZE / 2, y: 0 };
-            const rightMid = { x: CANVAS_SIZE, y: CANVAS_SIZE / 2 };
-            const bottomMid = { x: CANVAS_SIZE / 2, y: CANVAS_SIZE };
-            const leftMid = { x: 0, y: CANVAS_SIZE / 2 };
-            
-            // 上辺中央から右辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(topMid.x, topMid.y);
-            ctx.lineTo(rightMid.x, rightMid.y);
-            ctx.stroke();
-            
-            // 右辺中央から下辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(rightMid.x, rightMid.y);
-            ctx.lineTo(bottomMid.x, bottomMid.y);
-            ctx.stroke();
-            
-            // 下辺中央から左辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(bottomMid.x, bottomMid.y);
-            ctx.lineTo(leftMid.x, leftMid.y);
-            ctx.stroke();
-            
-            // 左辺中央から上辺中央へ
-            ctx.beginPath();
-            ctx.moveTo(leftMid.x, leftMid.y);
-            ctx.lineTo(topMid.x, topMid.y);
-            ctx.stroke();
-            
-            // 中央の正方形
-            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
-            
-            // シンボルを配置
-            drawHouseSymbols(ctx, centerX, centerY, centerSize);
-        }
-
-        function drawHouseSymbols(ctx, centerX, centerY, centerSize) {
-            const pattern = '2222';
-            const baseWidth = CANVAS_SIZE / 8;
-            const unit = baseWidth; // 基準単位
-            
-            // 12ハウスの左上座標（unitを基準に定義）
-            const houses = [
-                // ハウス1（左辺中央）
-                { x: unit * 1, y: unit * 3.25 },
-                // ハウス2（左下、左側の三角形）
-                { x: unit * 1.17, y: unit * 5.92 },
-                // ハウス3（左下、下側の三角形）
-                { x: unit * 0.33, y: unit * 5.92 },
-                // ハウス4（下辺中央）
-                { x: unit * 3.5, y: unit * 6.25 },
-                // ハウス5（右下、右側の三角形）
-                { x: unit * 5.83, y: unit * 5.92 },
-                // ハウス6（右下、下側の三角形）
-                { x: unit * 4.67, y: unit * 5.92 },
-                // ハウス7（右辺中央）
-                { x: unit * 6, y: unit * 3.25 },
-                // ハウス8（右上、右側の三角形）
-                { x: unit * 5.83, y: unit * 0.58 },
-                // ハウス9（右上、上側の三角形）
-                { x: unit * 4.67, y: unit * 0.58 },
-                // ハウス10（上辺中央）
-                { x: unit * 3.5, y: unit * 0.25 },
-                // ハウス11（左上、左側の三角形）
-                { x: unit * 0.33, y: unit * 0.58 },
-                // ハウス12（左上、上側の三角形）
-                { x: unit * 1.17, y: unit * 0.58 }
-            ];
-
-            houses.forEach(house => {
-                const img = new Image();
-                img.src = `${pattern}.png`;
-                img.onload = () => {
-                    const imgAspect = 2 / 3;
-                    const baseHeight = baseWidth / imgAspect;
-
-                    // house座標をそのまま左上位置として使用
-                    ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
-                };
-            });
-        }
     </script>
 </body>
 </html>
