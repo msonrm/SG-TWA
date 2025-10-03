@@ -1,1 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shield & House Chart - Simple Geomancy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #d8d8d8;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            font-size: 28px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .share-btn {
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #d8d8d8;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 8px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            color: #999;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .tab.active {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #333;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 600px;
+            display: none;
+        }
+
+        .chart-container.active {
+            display: block;
+        }
+
+        #shieldCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .save-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="close-btn" onclick="goBack()">×</button>
+        <button class="share-btn">🔗</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab(0)">シールドチャート</button>
+        <button class="tab" onclick="switchTab(1)">ハウスチャート1</button>
+        <button class="tab" onclick="switchTab(2)">ハウスチャート2</button>
+    </div>
+
+    <div class="content">
+        <div class="chart-container active" id="shieldChart">
+            <div style="position: relative;">
+                <canvas id="shieldCanvas"></canvas>
+                <div class="save-icon">🖼️</div>
+            </div>
+        </div>
+
+        <div class="chart-container" id="houseChart1">
+            <div class="placeholder">ハウスチャート1（準備中）</div>
+        </div>
+
+        <div class="chart-container" id="houseChart2">
+            <div class="placeholder">ハウスチャート2（準備中）</div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbolsParam = urlParams.get('symbols');
+        const mothers = symbolsParam ? symbolsParam.split(',') : ['2211', '1122', '2121', '1212'];
+
+        let canvas, ctx;
+        const CANVAS_SIZE = 800;
+
+        function switchTab(index) {
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+
+            document.querySelectorAll('.chart-container').forEach((container, i) => {
+                container.classList.toggle('active', i === index);
+            });
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function addSymbols(pattern1, pattern2) {
+            let result = '';
+            for (let i = 0; i < 4; i++) {
+                const sum = parseInt(pattern1[i]) + parseInt(pattern2[i]);
+                result += (sum % 2 === 0) ? '2' : '1';
+            }
+            return result;
+        }
+
+        function generateDaughters(mothers) {
+            const daughters = [];
+            for (let row = 0; row < 4; row++) {
+                let daughter = '';
+                for (let col = 0; col < 4; col++) {
+                    daughter += mothers[col][row];
+                }
+                daughters.push(daughter);
+            }
+            return daughters;
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('shieldCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = CANVAS_SIZE;
+            canvas.height = CANVAS_SIZE;
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+
+            ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+            const rowHeights = [
+                CANVAS_SIZE * 0.25,
+                CANVAS_SIZE * 0.50,
+                CANVAS_SIZE * 0.75,
+                CANVAS_SIZE
+            ];
+
+            for (let i = 0; i < rowHeights.length - 1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, rowHeights[i]);
+                ctx.lineTo(CANVAS_SIZE, rowHeights[i]);
+                ctx.stroke();
+            }
+
+            const topColWidth = CANVAS_SIZE / 8;
+            for (let i = 1; i < 8; i++) {
+                ctx.beginPath();
+                ctx.moveTo(topColWidth * i, 0);
+                ctx.lineTo(topColWidth * i, rowHeights[0]);
+                ctx.stroke();
+            }
+
+            const midColWidth = CANVAS_SIZE / 4;
+            for (let i = 1; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(midColWidth * i, rowHeights[0]);
+                ctx.lineTo(midColWidth * i, rowHeights[1]);
+                ctx.stroke();
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(CANVAS_SIZE / 2, rowHeights[1]);
+            ctx.lineTo(CANVAS_SIZE / 2, rowHeights[2]);
+            ctx.stroke();
+
+            const row4Right = CANVAS_SIZE * 3 / 4;
+            ctx.beginPath();
+            ctx.moveTo(row4Right, rowHeights[2]);
+            ctx.lineTo(row4Right, rowHeights[3]);
+            ctx.stroke();
+        }
+
+        function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
+            const img = new Image();
+            img.src = `${pattern}.png`;
+            
+            img.onload = () => {
+                const imgAspect = 2 / 3;
+                const maxWidth = cellWidth * 0.8;
+                const maxHeight = cellHeight * 0.8;
+                
+                let drawWidth, drawHeight;
+                if (maxWidth / maxHeight > imgAspect) {
+                    drawHeight = maxHeight;
+                    drawWidth = drawHeight * imgAspect;
+                } else {
+                    drawWidth = maxWidth;
+                    drawHeight = drawWidth / imgAspect;
+                }
+                
+                const x = cellX + (cellWidth - drawWidth) / 2;
+                const y = cellY + (cellHeight - drawHeight) / 2;
+                
+                ctx.drawImage(img, x, y, drawWidth, drawHeight);
+            };
+        }
+
+        function drawShieldChart() {
+            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            drawGrid();
+
+            const daughters = generateDaughters(mothers);
+            
+            const nieces = [
+                addSymbols(mothers[0], mothers[1]),
+                addSymbols(mothers[2], mothers[3]),
+                addSymbols(daughters[0], daughters[1]),
+                addSymbols(daughters[2], daughters[3])
+            ];
+
+            const witnesses = [
+                addSymbols(nieces[0], nieces[1]),
+                addSymbols(nieces[2], nieces[3])
+            ];
+
+            const judge = addSymbols(witnesses[0], witnesses[1]);
+            const reconciler = addSymbols(mothers[0], judge);
+
+            const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge, reconciler];
+            let loadedCount = 0;
+            const totalSymbols = allSymbols.length;
+
+            function checkAllLoaded() {
+                loadedCount++;
+                if (loadedCount === totalSymbols) {
+                    drawAllSymbols();
+                }
+            }
+
+            allSymbols.forEach(pattern => {
+                const img = new Image();
+                img.onload = checkAllLoaded;
+                img.onerror = checkAllLoaded;
+                img.src = `${pattern}.png`;
+            });
+
+            function drawAllSymbols() {
+                const cellWidth = CANVAS_SIZE / 8;
+                const row1Height = CANVAS_SIZE * 0.25;
+
+                for (let i = 0; i < 4; i++) {
+                    const x = cellWidth * i;
+                    drawSymbol(daughters[3 - i], x, 0, cellWidth, row1Height);
+                }
+
+                for (let i = 0; i < 4; i++) {
+                    const x = cellWidth * (4 + i);
+                    drawSymbol(mothers[3 - i], x, 0, cellWidth, row1Height);
+                }
+
+                const row2Width = CANVAS_SIZE / 4;
+                const row2Height = CANVAS_SIZE * 0.25;
+                for (let i = 0; i < 4; i++) {
+                    const x = row2Width * i;
+                    const y = CANVAS_SIZE * 0.25;
+                    drawSymbol(nieces[3 - i], x, y, row2Width, row2Height);
+                }
+
+                const row3Width = CANVAS_SIZE / 2;
+                const row3Height = CANVAS_SIZE * 0.25;
+                for (let i = 0; i < 2; i++) {
+                    const x = row3Width * i;
+                    const y = CANVAS_SIZE * 0.50;
+                    drawSymbol(witnesses[1 - i], x, y, row3Width, row3Height);
+                }
+
+                const row4Height = CANVAS_SIZE * 0.25;
+                const y4 = CANVAS_SIZE * 0.75;
+                
+                drawSymbol(judge, 0, y4, CANVAS_SIZE, row4Height);
+                
+                const reconcilerX = CANVAS_SIZE * 3 / 4;
+                const reconcilerWidth = CANVAS_SIZE / 4;
+                drawSymbol(reconciler, reconcilerX, y4, reconcilerWidth, row4Height);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            drawShieldChart();
+        });
+    </script>
+</body>
+</html>
