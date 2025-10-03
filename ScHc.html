@@ -380,54 +380,63 @@
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
 
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
+            function redrawChart() {
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                
+                ctx.strokeRect(unit, unit, unit * 8, unit * 8);
+                
+                ctx.beginPath();
+                ctx.moveTo(unit, unit);
+                ctx.lineTo(unit * 3, unit * 3);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 7, unit * 7);
+                ctx.lineTo(unit * 9, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 9, unit);
+                ctx.lineTo(unit * 7, unit * 3);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 3, unit * 7);
+                ctx.lineTo(unit, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 5, unit);
+                ctx.lineTo(unit * 9, unit * 5);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 9, unit * 5);
+                ctx.lineTo(unit * 5, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 5, unit * 9);
+                ctx.lineTo(unit, unit * 5);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit, unit * 5);
+                ctx.lineTo(unit * 5, unit);
+                ctx.stroke();
+                
+                ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                
+                const checkbox = document.getElementById('showWitnessesCheck');
+                drawHouseSymbols(ctx, unit, checkbox.checked);
+            }
+
+            redrawChart();
             
-            ctx.strokeRect(unit, unit, unit * 8, unit * 8);
-            
-            ctx.beginPath();
-            ctx.moveTo(unit, unit);
-            ctx.lineTo(unit * 3, unit * 3);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 7, unit * 7);
-            ctx.lineTo(unit * 9, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 9, unit);
-            ctx.lineTo(unit * 7, unit * 3);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 3, unit * 7);
-            ctx.lineTo(unit, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 5, unit);
-            ctx.lineTo(unit * 9, unit * 5);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 9, unit * 5);
-            ctx.lineTo(unit * 5, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 5, unit * 9);
-            ctx.lineTo(unit, unit * 5);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit, unit * 5);
-            ctx.lineTo(unit * 5, unit);
-            ctx.stroke();
-            
-            ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
-            
-            drawHouseSymbols(ctx, unit);
+            document.getElementById('showWitnessesCheck').addEventListener('change', redrawChart);
         }
 
         function initHouseChart2() {
@@ -438,57 +447,66 @@
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
 
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
+            function redrawChart() {
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                
+                ctx.strokeRect(unit, unit, unit * 8, unit * 8);
+                
+                ctx.beginPath();
+                ctx.moveTo(unit, unit);
+                ctx.lineTo(unit * 3, unit * 3);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 7, unit * 7);
+                ctx.lineTo(unit * 9, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 9, unit);
+                ctx.lineTo(unit * 7, unit * 3);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 3, unit * 7);
+                ctx.lineTo(unit, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 5, unit);
+                ctx.lineTo(unit * 9, unit * 5);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 9, unit * 5);
+                ctx.lineTo(unit * 5, unit * 9);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit * 5, unit * 9);
+                ctx.lineTo(unit, unit * 5);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(unit, unit * 5);
+                ctx.lineTo(unit * 5, unit);
+                ctx.stroke();
+                
+                ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                
+                const checkbox = document.getElementById('showWitnessesCheck2');
+                drawHouseSymbols(ctx, unit, checkbox.checked);
+            }
+
+            redrawChart();
             
-            ctx.strokeRect(unit, unit, unit * 8, unit * 8);
-            
-            ctx.beginPath();
-            ctx.moveTo(unit, unit);
-            ctx.lineTo(unit * 3, unit * 3);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 7, unit * 7);
-            ctx.lineTo(unit * 9, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 9, unit);
-            ctx.lineTo(unit * 7, unit * 3);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 3, unit * 7);
-            ctx.lineTo(unit, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 5, unit);
-            ctx.lineTo(unit * 9, unit * 5);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 9, unit * 5);
-            ctx.lineTo(unit * 5, unit * 9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit * 5, unit * 9);
-            ctx.lineTo(unit, unit * 5);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(unit, unit * 5);
-            ctx.lineTo(unit * 5, unit);
-            ctx.stroke();
-            
-            ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
-            
-            drawHouseSymbols(ctx, unit);
+            document.getElementById('showWitnessesCheck2').addEventListener('change', redrawChart);
         }
 
-        function drawHouseSymbols(ctx, unit) {
+        function drawHouseSymbols(ctx, unit, showWitnesses) {
             const pattern = '2222';
             
             const houses = [
@@ -506,7 +524,15 @@
                 { x: unit * 1.1, y: unit * 2.25 }
             ];
 
-            houses.forEach(house => {
+            const witnesses = [
+                { x: unit * 5.5, y: unit * 3.35 },
+                { x: unit * 3.5, y: unit * 3.35 },
+                { x: unit * 4.5, y: unit * 5.15 }
+            ];
+
+            const symbolsToShow = showWitnesses ? [...houses, ...witnesses] : houses;
+
+            symbolsToShow.forEach(house => {
                 const img = new Image();
                 img.src = `${pattern}.png`;
                 img.onload = () => {
