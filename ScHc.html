@@ -538,32 +538,32 @@
             const baseWidth = CANVAS_SIZE / 8;
             const unit = baseWidth; // 基準単位
             
-            // 12ハウスの中心座標（unitを基準に定義）
+            // 12ハウスの左上座標（unitを基準に定義）
             const houses = [
                 // ハウス1（左辺中央）
-                { x: unit * 1.5, y: unit * 4 },
+                { x: unit * 1, y: unit * 3.25 },
                 // ハウス2（左下、左側の三角形）
-                { x: unit * 1.67, y: unit * 6.67 },
+                { x: unit * 1.17, y: unit * 5.92 },
                 // ハウス3（左下、下側の三角形）
-                { x: unit * 0.83, y: unit * 6.67 },
+                { x: unit * 0.33, y: unit * 5.92 },
                 // ハウス4（下辺中央）
-                { x: unit * 4, y: unit * 7 },
+                { x: unit * 3.5, y: unit * 6.25 },
                 // ハウス5（右下、右側の三角形）
-                { x: unit * 6.33, y: unit * 6.67 },
+                { x: unit * 5.83, y: unit * 5.92 },
                 // ハウス6（右下、下側の三角形）
-                { x: unit * 5.17, y: unit * 6.67 },
+                { x: unit * 4.67, y: unit * 5.92 },
                 // ハウス7（右辺中央）
-                { x: unit * 6.5, y: unit * 4 },
+                { x: unit * 6, y: unit * 3.25 },
                 // ハウス8（右上、右側の三角形）
-                { x: unit * 6.33, y: unit * 1.33 },
+                { x: unit * 5.83, y: unit * 0.58 },
                 // ハウス9（右上、上側の三角形）
-                { x: unit * 5.17, y: unit * 1.33 },
+                { x: unit * 4.67, y: unit * 0.58 },
                 // ハウス10（上辺中央）
-                { x: unit * 4, y: unit * 1 },
+                { x: unit * 3.5, y: unit * 0.25 },
                 // ハウス11（左上、左側の三角形）
-                { x: unit * 0.83, y: unit * 1.33 },
+                { x: unit * 0.33, y: unit * 0.58 },
                 // ハウス12（左上、上側の三角形）
-                { x: unit * 1.67, y: unit * 1.33 }
+                { x: unit * 1.17, y: unit * 0.58 }
             ];
 
             houses.forEach(house => {
@@ -573,10 +573,8 @@
                     const imgAspect = 2 / 3;
                     const baseHeight = baseWidth / imgAspect;
 
-                    const x = house.x - baseWidth / 2;
-                    const y = house.y - baseHeight / 2;
-
-                    ctx.drawImage(img, x, y, baseWidth, baseHeight);
+                    // house座標をそのまま左上位置として使用
+                    ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
                 };
             });
         }
