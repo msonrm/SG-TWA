@@ -536,33 +536,34 @@
         function drawHouseSymbols(ctx, centerX, centerY, centerSize) {
             const pattern = '2222';
             const baseWidth = CANVAS_SIZE / 8;
+            const unit = baseWidth; // 基準単位
             
-            // 12ハウスの中心座標を計算
+            // 12ハウスの中心座標（unitを基準に定義）
             const houses = [
-                // ハウス1（左辺中央）- 右に寄せる
-                { x: centerX / 2 + baseWidth / 2, y: CANVAS_SIZE / 2 },
+                // ハウス1（左辺中央）
+                { x: unit * 1.5, y: unit * 4 },
                 // ハウス2（左下、左側の三角形）
-                { x: centerX * 2 / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
+                { x: unit * 1.67, y: unit * 6.67 },
                 // ハウス3（左下、下側の三角形）
-                { x: centerX / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
+                { x: unit * 0.83, y: unit * 6.67 },
                 // ハウス4（下辺中央）
-                { x: CANVAS_SIZE / 2, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) / 2 },
+                { x: unit * 4, y: unit * 7 },
                 // ハウス5（右下、右側の三角形）
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) * 2 / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
+                { x: unit * 6.33, y: unit * 6.67 },
                 // ハウス6（右下、下側の三角形）
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
-                // ハウス7（右辺中央）- 左に寄せる
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 2 - baseWidth / 2, y: CANVAS_SIZE / 2 },
+                { x: unit * 5.17, y: unit * 6.67 },
+                // ハウス7（右辺中央）
+                { x: unit * 6.5, y: unit * 4 },
                 // ハウス8（右上、右側の三角形）
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) * 2 / 3, y: centerY / 3 },
+                { x: unit * 6.33, y: unit * 1.33 },
                 // ハウス9（右上、上側の三角形）
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 3, y: centerY / 3 },
+                { x: unit * 5.17, y: unit * 1.33 },
                 // ハウス10（上辺中央）
-                { x: CANVAS_SIZE / 2, y: centerY / 2 },
+                { x: unit * 4, y: unit * 1 },
                 // ハウス11（左上、左側の三角形）
-                { x: centerX / 3, y: centerY / 3 },
+                { x: unit * 0.83, y: unit * 1.33 },
                 // ハウス12（左上、上側の三角形）
-                { x: centerX * 2 / 3, y: centerY / 3 }
+                { x: unit * 1.67, y: unit * 1.33 }
             ];
 
             houses.forEach(house => {
