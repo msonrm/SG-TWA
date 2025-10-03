@@ -540,10 +540,23 @@
             let housePatterns;
             
             if (chartType === 1) {
-                // ハウスチャート1: すべて同じパターン（仮）
-                housePatterns = Array(12).fill('2222');
+                // ハウスチャート1（伝統的）
+                housePatterns = [
+                    shieldChartData.mothers[0],    // 1ハウス: 1の母
+                    shieldChartData.mothers[1],    // 2ハウス: 2の母
+                    shieldChartData.mothers[2],    // 3ハウス: 3の母
+                    shieldChartData.mothers[3],    // 4ハウス: 4の母
+                    shieldChartData.daughters[0],  // 5ハウス: 1の娘
+                    shieldChartData.daughters[1],  // 6ハウス: 2の娘
+                    shieldChartData.daughters[2],  // 7ハウス: 3の娘
+                    shieldChartData.daughters[3],  // 8ハウス: 4の娘
+                    shieldChartData.nieces[0],     // 9ハウス: 1の姪
+                    shieldChartData.nieces[1],     // 10ハウス: 2の姪
+                    shieldChartData.nieces[2],     // 11ハウス: 3の姪
+                    shieldChartData.nieces[3]      // 12ハウス: 4の姪
+                ];
             } else {
-                // ハウスチャート2: シールドチャートから取得
+                // ハウスチャート2（黄金の夜明け団）
                 housePatterns = [
                     shieldChartData.mothers[1],    // 1ハウス: 2の母
                     shieldChartData.daughters[1],  // 2ハウス: 2の娘
