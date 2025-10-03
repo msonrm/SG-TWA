@@ -152,7 +152,7 @@
             <canvas id="houseCanvas2"></canvas>
             <div style="text-align: center; margin-top: 20px;">
                 <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #333;">
-                    ハウスチャート（伝統的）
+                    ハウスチャート（黄金の夜明け団）
                 </div>
                 <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
                     <input type="checkbox" id="showWitnessesCheck2" style="width: 18px; height: 18px;">
@@ -167,7 +167,33 @@
         const symbolsParam = urlParams.get('symbols');
         const mothers = symbolsParam ? symbolsParam.split(',') : ['2211', '1122', '2121', '1212'];
 
-        let canvas, ctx;
+        let shieldChartData = null;
+
+        function calculateShieldData() {
+            const daughters = generateDaughters(mothers);
+            
+            const nieces = [
+                addSymbols(mothers[0], mothers[1]),
+                addSymbols(mothers[2], mothers[3]),
+                addSymbols(daughters[0], daughters[1]),
+                addSymbols(daughters[2], daughters[3])
+            ];
+
+            const witnesses = [
+                addSymbols(nieces[0], nieces[1]),
+                addSymbols(nieces[2], nieces[3])
+            ];
+
+            const judge = addSymbols(witnesses[0], witnesses[1]);
+
+            return {
+                mothers: mothers,
+                daughters: daughters,
+                nieces: nieces,
+                witnesses: witnesses,
+                judge: judge
+            };
+        }
         
         function getCanvasSize() {
             const screenWidth = window.innerWidth;
@@ -431,7 +457,7 @@
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
                 
                 const checkbox = document.getElementById('showWitnessesCheck');
-                drawHouseSymbols(ctx, unit, checkbox.checked);
+                drawHouseSymbols(ctx, unit, checkbox.checked, 1);
             }
 
             redrawChart();
@@ -498,7 +524,7 @@
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
                 
                 const checkbox = document.getElementById('showWitnessesCheck2');
-                drawHouseSymbols(ctx, unit, checkbox.checked);
+                drawHouseSymbols(ctx, unit, checkbox.checked, 2);
             }
 
             redrawChart();
@@ -506,8 +532,33 @@
             document.getElementById('showWitnessesCheck2').addEventListener('change', redrawChart);
         }
 
-        function drawHouseSymbols(ctx, unit, showWitnesses) {
-            const pattern = '2222';
+        function drawHouseSymbols(ctx, unit, showWitnesses, chartType) {
+            if (!shieldChartData) {
+                shieldChartData = calculateShieldData();
+            }
+
+            let housePatterns;
+            
+            if (chartType === 1) {
+                // ハウスチャート1: すべて同じパターン（仮）
+                housePatterns = Array(12).fill('2222');
+            } else {
+                // ハウスチャート2: シールドチャートから取得
+                housePatterns = [
+                    shieldChartData.mothers[1],    // 1ハウス: 2の母
+                    shieldChartData.daughters[1],  // 2ハウス: 2の娘
+                    shieldChartData.nieces[1],     // 3ハウス: 2の姪
+                    shieldChartData.mothers[2],    // 4ハウス: 3の母
+                    shieldChartData.daughters[2],  // 5ハウス: 3の娘
+                    shieldChartData.nieces[2],     // 6ハウス: 3の姪
+                    shieldChartData.mothers[3],    // 7ハウス: 4の母
+                    shieldChartData.daughters[3],  // 8ハウス: 4の娘
+                    shieldChartData.nieces[3],     // 9ハウス: 4の姪
+                    shieldChartData.mothers[0],    // 10ハウス: 1の母
+                    shieldChartData.daughters[0],  // 11ハウス: 1の娘
+                    shieldChartData.nieces[0]      // 12ハウス: 1の姪
+                ];
+            }
             
             const houses = [
                 { x: unit * 1.9, y: unit * 4.25 },
@@ -524,17 +575,10 @@
                 { x: unit * 1.1, y: unit * 2.25 }
             ];
 
-            const witnesses = [
-                { x: unit * 5.5, y: unit * 3.35 },
-                { x: unit * 3.5, y: unit * 3.35 },
-                { x: unit * 4.5, y: unit * 5.15 }
-            ];
-
-            const symbolsToShow = showWitnesses ? [...houses, ...witnesses] : houses;
-
-            symbolsToShow.forEach(house => {
+            // 12ハウスのシンボルを描画
+            houses.forEach((house, index) => {
                 const img = new Image();
-                img.src = `${pattern}.png`;
+                img.src = `${housePatterns[index]}.png`;
                 img.onload = () => {
                     const imgAspect = 2 / 3;
                     const baseWidth = unit;
@@ -542,6 +586,26 @@
                     ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
                 };
             });
+
+            // 中央の3つのシンボル（証人と裁判官）
+            if (showWitnesses) {
+                const witnesses = [
+                    { x: unit * 5.5, y: unit * 3.35, pattern: shieldChartData.witnesses[0] },  // 右の証人
+                    { x: unit * 3.5, y: unit * 3.35, pattern: shieldChartData.witnesses[1] },  // 左の証人
+                    { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }          // 裁判官
+                ];
+
+                witnesses.forEach(witness => {
+                    const img = new Image();
+                    img.src = `${witness.pattern}.png`;
+                    img.onload = () => {
+                        const imgAspect = 2 / 3;
+                        const baseWidth = unit;
+                        const baseHeight = baseWidth / imgAspect;
+                        ctx.drawImage(img, witness.x, witness.y, baseWidth, baseHeight);
+                    };
+                });
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
