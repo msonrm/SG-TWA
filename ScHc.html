@@ -535,11 +535,12 @@
 
         function drawHouseSymbols(ctx, centerX, centerY, centerSize) {
             const pattern = '2222';
+            const baseWidth = CANVAS_SIZE / 8;
             
             // 12ハウスの中心座標を計算
             const houses = [
-                // ハウス1（左辺中央）
-                { x: centerX / 2, y: CANVAS_SIZE / 2 },
+                // ハウス1（左辺中央）- 右に寄せる
+                { x: centerX / 2 + baseWidth / 2, y: CANVAS_SIZE / 2 },
                 // ハウス2（左下、左側の三角形）
                 { x: centerX * 2 / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
                 // ハウス3（左下、下側の三角形）
@@ -550,8 +551,8 @@
                 { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) * 2 / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
                 // ハウス6（右下、下側の三角形）
                 { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 3, y: centerY + centerSize + (CANVAS_SIZE - centerY - centerSize) * 2 / 3 },
-                // ハウス7（右辺中央）
-                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 2, y: CANVAS_SIZE / 2 },
+                // ハウス7（右辺中央）- 左に寄せる
+                { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) / 2 - baseWidth / 2, y: CANVAS_SIZE / 2 },
                 // ハウス8（右上、右側の三角形）
                 { x: centerX + centerSize + (CANVAS_SIZE - centerX - centerSize) * 2 / 3, y: centerY / 3 },
                 // ハウス9（右上、上側の三角形）
@@ -569,7 +570,6 @@
                 img.src = `${pattern}.png`;
                 img.onload = () => {
                     const imgAspect = 2 / 3;
-                    const baseWidth = CANVAS_SIZE / 8;
                     const baseHeight = baseWidth / imgAspect;
 
                     const x = house.x - baseWidth / 2;
