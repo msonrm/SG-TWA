@@ -224,56 +224,52 @@
         }
 
         function drawGrid() {
-            const { canvasWidth, unit } = getCanvasSize();
+            const { unit } = getCanvasSize();
             
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
 
             const gridSize = unit * 8;
-            const offsetX = unit;
-            const offsetY = unit;
-            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
+            ctx.strokeRect(unit, unit, gridSize, gridSize);
 
             const rowHeights = [
-                offsetY + gridSize * 0.25,
-                offsetY + gridSize * 0.50,
-                offsetY + gridSize * 0.75,
-                offsetY + gridSize
+                unit + gridSize * 0.25,
+                unit + gridSize * 0.50,
+                unit + gridSize * 0.75,
+                unit + gridSize
             ];
 
             for (let i = 0; i < rowHeights.length - 1; i++) {
                 ctx.beginPath();
-                ctx.moveTo(offsetX, rowHeights[i]);
-                ctx.lineTo(offsetX + gridSize, rowHeights[i]);
+                ctx.moveTo(unit, rowHeights[i]);
+                ctx.lineTo(unit * 9, rowHeights[i]);
                 ctx.stroke();
             }
 
             const topColWidth = gridSize / 8;
             for (let i = 1; i < 8; i++) {
                 ctx.beginPath();
-                ctx.moveTo(offsetX + topColWidth * i, offsetY);
-                ctx.lineTo(offsetX + topColWidth * i, rowHeights[0]);
+                ctx.moveTo(unit + topColWidth * i, unit);
+                ctx.lineTo(unit + topColWidth * i, rowHeights[0]);
                 ctx.stroke();
             }
 
             const midColWidth = gridSize / 4;
             for (let i = 1; i < 4; i++) {
                 ctx.beginPath();
-                ctx.moveTo(offsetX + midColWidth * i, rowHeights[0]);
-                ctx.lineTo(offsetX + midColWidth * i, rowHeights[1]);
+                ctx.moveTo(unit + midColWidth * i, rowHeights[0]);
+                ctx.lineTo(unit + midColWidth * i, rowHeights[1]);
                 ctx.stroke();
             }
 
             ctx.beginPath();
-            ctx.moveTo(offsetX + gridSize / 2, rowHeights[1]);
-            ctx.lineTo(offsetX + gridSize / 2, rowHeights[2]);
+            ctx.moveTo(unit * 5, rowHeights[1]);
+            ctx.lineTo(unit * 5, rowHeights[2]);
             ctx.stroke();
 
-            const row4Right = gridSize * 3 / 4;
-            
             ctx.beginPath();
-            ctx.moveTo(offsetX + row4Right, rowHeights[2]);
-            ctx.lineTo(offsetX + row4Right, rowHeights[3]);
+            ctx.moveTo(unit * 7, rowHeights[2]);
+            ctx.lineTo(unit * 7, rowHeights[3]);
             ctx.stroke();
         }
 
@@ -296,9 +292,6 @@
 
         function drawShieldChart() {
             const { canvasWidth, canvasHeight, unit } = getCanvasSize();
-            const gridSize = unit * 8;
-            const offsetX = unit;
-            const offsetY = unit;
             
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             drawGrid();
@@ -339,42 +332,42 @@
             });
 
             function drawAllSymbols() {
-                const cellWidth = gridSize / 8;
-                const row1Height = gridSize * 0.25;
+                const cellWidth = unit;
+                const row1Height = unit * 2;
 
                 for (let i = 0; i < 4; i++) {
-                    const x = offsetX + cellWidth * i;
-                    drawSymbol(daughters[3 - i], x, offsetY, cellWidth, row1Height);
+                    const x = unit + cellWidth * i;
+                    drawSymbol(daughters[3 - i], x, unit, cellWidth, row1Height);
                 }
 
                 for (let i = 0; i < 4; i++) {
-                    const x = offsetX + cellWidth * (4 + i);
-                    drawSymbol(mothers[3 - i], x, offsetY, cellWidth, row1Height);
+                    const x = unit + cellWidth * (4 + i);
+                    drawSymbol(mothers[3 - i], x, unit, cellWidth, row1Height);
                 }
 
-                const row2Width = gridSize / 4;
-                const row2Height = gridSize * 0.25;
+                const row2Width = unit * 2;
+                const row2Height = unit * 2;
                 for (let i = 0; i < 4; i++) {
-                    const x = offsetX + row2Width * i;
-                    const y = offsetY + gridSize * 0.25;
+                    const x = unit + row2Width * i;
+                    const y = unit * 3;
                     drawSymbol(nieces[3 - i], x, y, row2Width, row2Height);
                 }
 
-                const row3Width = gridSize / 2;
-                const row3Height = gridSize * 0.25;
+                const row3Width = unit * 4;
+                const row3Height = unit * 2;
                 for (let i = 0; i < 2; i++) {
-                    const x = offsetX + row3Width * i;
-                    const y = offsetY + gridSize * 0.50;
+                    const x = unit + row3Width * i;
+                    const y = unit * 5;
                     drawSymbol(witnesses[1 - i], x, y, row3Width, row3Height);
                 }
 
-                const row4Height = gridSize * 0.25;
-                const y4 = offsetY + gridSize * 0.75;
+                const row4Height = unit * 2;
+                const y4 = unit * 7;
                 
-                drawSymbol(judge, offsetX, y4, gridSize, row4Height);
+                drawSymbol(judge, unit, y4, unit * 8, row4Height);
                 
-                const reconcilerX = offsetX + gridSize * 3 / 4;
-                const reconcilerWidth = gridSize / 4;
+                const reconcilerX = unit * 7;
+                const reconcilerWidth = unit * 2;
                 drawSymbol(reconciler, reconcilerX, y4, reconcilerWidth, row4Height);
             }
         }
@@ -386,68 +379,55 @@
             const { canvasWidth, canvasHeight, unit } = getCanvasSize();
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-            
-            const gridSize = unit * 8;
-            const offsetX = unit;
-            const offsetY = unit;
 
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
             
-            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
-            
-            const centerSize = unit * 4;
-            const centerX = offsetX + unit * 2;
-            const centerY = offsetY + unit * 2;
+            ctx.strokeRect(unit, unit, unit * 8, unit * 8);
             
             ctx.beginPath();
-            ctx.moveTo(offsetX, offsetY);
-            ctx.lineTo(centerX, centerY);
+            ctx.moveTo(unit, unit);
+            ctx.lineTo(unit * 3, unit * 3);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(centerX + centerSize, centerY + centerSize);
-            ctx.lineTo(offsetX + gridSize, offsetY + gridSize);
+            ctx.moveTo(unit * 7, unit * 7);
+            ctx.lineTo(unit * 9, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(offsetX + gridSize, offsetY);
-            ctx.lineTo(centerX + centerSize, centerY);
+            ctx.moveTo(unit * 9, unit);
+            ctx.lineTo(unit * 7, unit * 3);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(centerX, centerY + centerSize);
-            ctx.lineTo(offsetX, offsetY + gridSize);
-            ctx.stroke();
-            
-            const topMid = { x: offsetX + gridSize / 2, y: offsetY };
-            const rightMid = { x: offsetX + gridSize, y: offsetY + gridSize / 2 };
-            const bottomMid = { x: offsetX + gridSize / 2, y: offsetY + gridSize };
-            const leftMid = { x: offsetX, y: offsetY + gridSize / 2 };
-            
-            ctx.beginPath();
-            ctx.moveTo(topMid.x, topMid.y);
-            ctx.lineTo(rightMid.x, rightMid.y);
+            ctx.moveTo(unit * 3, unit * 7);
+            ctx.lineTo(unit, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(rightMid.x, rightMid.y);
-            ctx.lineTo(bottomMid.x, bottomMid.y);
+            ctx.moveTo(unit * 5, unit);
+            ctx.lineTo(unit * 9, unit * 5);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(bottomMid.x, bottomMid.y);
-            ctx.lineTo(leftMid.x, leftMid.y);
+            ctx.moveTo(unit * 9, unit * 5);
+            ctx.lineTo(unit * 5, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(leftMid.x, leftMid.y);
-            ctx.lineTo(topMid.x, topMid.y);
+            ctx.moveTo(unit * 5, unit * 9);
+            ctx.lineTo(unit, unit * 5);
             ctx.stroke();
             
-            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
+            ctx.beginPath();
+            ctx.moveTo(unit, unit * 5);
+            ctx.lineTo(unit * 5, unit);
+            ctx.stroke();
             
-            drawHouseSymbols(ctx, unit, offsetX, offsetY);
+            ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+            
+            drawHouseSymbols(ctx, unit);
         }
 
         function initHouseChart2() {
@@ -457,86 +437,73 @@
             const { canvasWidth, canvasHeight, unit } = getCanvasSize();
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-            
-            const gridSize = unit * 8;
-            const offsetX = unit;
-            const offsetY = unit;
 
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
             
-            ctx.strokeRect(offsetX, offsetY, gridSize, gridSize);
-            
-            const centerSize = unit * 4;
-            const centerX = offsetX + unit * 2;
-            const centerY = offsetY + unit * 2;
+            ctx.strokeRect(unit, unit, unit * 8, unit * 8);
             
             ctx.beginPath();
-            ctx.moveTo(offsetX, offsetY);
-            ctx.lineTo(centerX, centerY);
+            ctx.moveTo(unit, unit);
+            ctx.lineTo(unit * 3, unit * 3);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(centerX + centerSize, centerY + centerSize);
-            ctx.lineTo(offsetX + gridSize, offsetY + gridSize);
+            ctx.moveTo(unit * 7, unit * 7);
+            ctx.lineTo(unit * 9, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(offsetX + gridSize, offsetY);
-            ctx.lineTo(centerX + centerSize, centerY);
+            ctx.moveTo(unit * 9, unit);
+            ctx.lineTo(unit * 7, unit * 3);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(centerX, centerY + centerSize);
-            ctx.lineTo(offsetX, offsetY + gridSize);
-            ctx.stroke();
-            
-            const topMid = { x: offsetX + gridSize / 2, y: offsetY };
-            const rightMid = { x: offsetX + gridSize, y: offsetY + gridSize / 2 };
-            const bottomMid = { x: offsetX + gridSize / 2, y: offsetY + gridSize };
-            const leftMid = { x: offsetX, y: offsetY + gridSize / 2 };
-            
-            ctx.beginPath();
-            ctx.moveTo(topMid.x, topMid.y);
-            ctx.lineTo(rightMid.x, rightMid.y);
+            ctx.moveTo(unit * 3, unit * 7);
+            ctx.lineTo(unit, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(rightMid.x, rightMid.y);
-            ctx.lineTo(bottomMid.x, bottomMid.y);
+            ctx.moveTo(unit * 5, unit);
+            ctx.lineTo(unit * 9, unit * 5);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(bottomMid.x, bottomMid.y);
-            ctx.lineTo(leftMid.x, leftMid.y);
+            ctx.moveTo(unit * 9, unit * 5);
+            ctx.lineTo(unit * 5, unit * 9);
             ctx.stroke();
             
             ctx.beginPath();
-            ctx.moveTo(leftMid.x, leftMid.y);
-            ctx.lineTo(topMid.x, topMid.y);
+            ctx.moveTo(unit * 5, unit * 9);
+            ctx.lineTo(unit, unit * 5);
             ctx.stroke();
             
-            ctx.strokeRect(centerX, centerY, centerSize, centerSize);
+            ctx.beginPath();
+            ctx.moveTo(unit, unit * 5);
+            ctx.lineTo(unit * 5, unit);
+            ctx.stroke();
             
-            drawHouseSymbols(ctx, unit, offsetX, offsetY);
+            ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+            
+            drawHouseSymbols(ctx, unit);
         }
 
-        function drawHouseSymbols(ctx, unit, offsetX, offsetY) {
+        function drawHouseSymbols(ctx, unit) {
             const pattern = '2222';
             
             const houses = [
-                { x: offsetX + unit * 1, y: offsetY + unit * 3.25 },
-                { x: offsetX + unit * 1.17, y: offsetY + unit * 5.92 },
-                { x: offsetX + unit * 0.33, y: offsetY + unit * 5.92 },
-                { x: offsetX + unit * 3.5, y: offsetY + unit * 6.25 },
-                { x: offsetX + unit * 5.83, y: offsetY + unit * 5.92 },
-                { x: offsetX + unit * 4.67, y: offsetY + unit * 5.92 },
-                { x: offsetX + unit * 6, y: offsetY + unit * 3.25 },
-                { x: offsetX + unit * 5.83, y: offsetY + unit * 0.58 },
-                { x: offsetX + unit * 4.67, y: offsetY + unit * 0.58 },
-                { x: offsetX + unit * 3.5, y: offsetY + unit * 0.25 },
-                { x: offsetX + unit * 0.33, y: offsetY + unit * 0.58 },
-                { x: offsetX + unit * 1.17, y: offsetY + unit * 0.58 }
+                { x: unit * 2, y: unit * 4.25 },
+                { x: unit * 2.17, y: unit * 6.92 },
+                { x: unit * 1.33, y: unit * 6.92 },
+                { x: unit * 4.5, y: unit * 7.25 },
+                { x: unit * 6.83, y: unit * 6.92 },
+                { x: unit * 5.67, y: unit * 6.92 },
+                { x: unit * 7, y: unit * 4.25 },
+                { x: unit * 6.83, y: unit * 1.58 },
+                { x: unit * 5.67, y: unit * 1.58 },
+                { x: unit * 4.5, y: unit * 1.25 },
+                { x: unit * 1.33, y: unit * 1.58 },
+                { x: unit * 2.17, y: unit * 1.58 }
             ];
 
             houses.forEach(house => {
