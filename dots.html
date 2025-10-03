@@ -1,1 +1,362 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dots - Simple Geomancy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .header {
+            background: #c8c8c8;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            font-size: 28px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .palette-icon {
+            font-size: 24px;
+        }
+
+        .ok-btn {
+            background: #d0d0d0;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #999;
+            cursor: not-allowed;
+            transition: all 0.2s ease;
+        }
+
+        .ok-btn.active {
+            background: #888;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .tap-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tap-zone {
+            flex: 1;
+            background: #f8f8f8;
+            border-bottom: 2px solid #e0e0e0;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .tap-zone:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            transform: translate(-50%, -50%) rotate(45deg);
+            pointer-events: none;
+        }
+
+        .symbol-slots {
+            background: #d8d8d8;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .symbol-slot {
+            width: 60px;
+            height: 60px;
+            background: #ffffff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .symbol-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .dialog-overlay.show {
+            display: flex;
+        }
+
+        .dialog {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .dialog-content {
+            text-align: center;
+        }
+
+        .dialog-symbol {
+            width: 120px;
+            height: 120px;
+            margin: 16px auto;
+        }
+
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .dialog-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .dialog-btn {
+            background: #888;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dialog-btn:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="close-btn" onclick="goBack()">×</button>
+        <span class="palette-icon">🎨</span>
+        <button class="ok-btn" id="okBtn" onclick="completeRound()">OK</button>
+    </div>
+
+    <div class="tap-area" id="tapArea">
+        <div class="tap-zone" data-zone="0"></div>
+        <div class="tap-zone" data-zone="1"></div>
+        <div class="tap-zone" data-zone="2"></div>
+        <div class="tap-zone" data-zone="3"></div>
+    </div>
+
+    <div class="symbol-slots" id="symbolSlots"></div>
+
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog">
+            <div class="dialog-content" id="dialogContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode') || 'ScHc';
+        const totalSlots = mode === 'St' ? 2 : 4;
+        
+        let zoneDots = [[], [], [], []];
+        let completedSymbols = [];
+        let currentSymbol = null;
+
+        const geomancySymbols = {
+            '2222': { name: 'Populus', meaning: '人々・安定' },
+            '1111': { name: 'Via', meaning: '道・変化' },
+            '2112': { name: 'Conjunctio', meaning: 'つながり' },
+            '1221': { name: 'Carcer', meaning: '拘束' },
+            '2211': { name: 'Fortuna Major', meaning: '大吉' },
+            '1122': { name: 'Fortuna Minor', meaning: '小吉' },
+            '2121': { name: 'Acquisitio', meaning: '獲得' },
+            '1212': { name: 'Amissio', meaning: '喪失' },
+            '1222': { name: 'Laetitia', meaning: '喜び' },
+            '2221': { name: 'Tristitia', meaning: '悲しみ' },
+            '1211': { name: 'Puella', meaning: '少女' },
+            '1121': { name: 'Puer', meaning: '少年' },
+            '2212': { name: 'Albus', meaning: '白' },
+            '2122': { name: 'Rubeus', meaning: '赤' },
+            '2111': { name: 'Caput Draconis', meaning: '竜の頭' },
+            '1112': { name: 'Cauda Draconis', meaning: '竜の尾' }
+        };
+
+        function initSlots() {
+            const slotsContainer = document.getElementById('symbolSlots');
+            slotsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlots; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'symbol-slot';
+                slot.id = `slot-${i}`;
+                slotsContainer.appendChild(slot);
+            }
+        }
+
+        function addDot(zone, x, y) {
+            const zoneElement = document.querySelector(`[data-zone="${zone}"]`);
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.left = x + 'px';
+            dot.style.top = y + 'px';
+            zoneElement.appendChild(dot);
+            
+            zoneDots[zone].push({ x, y });
+            checkOkButton();
+        }
+
+        function checkOkButton() {
+            const okBtn = document.getElementById('okBtn');
+            const allZonesHaveDots = zoneDots.every(zone => zone.length > 0);
+            
+            if (allZonesHaveDots) {
+                okBtn.classList.add('active');
+            } else {
+                okBtn.classList.remove('active');
+            }
+        }
+
+        function completeRound() {
+            const okBtn = document.getElementById('okBtn');
+            if (!okBtn.classList.contains('active')) return;
+
+            const pattern = zoneDots.map(zone => zone.length % 2 === 0 ? '2' : '1').join('');
+            currentSymbol = pattern;
+            
+            const symbol = geomancySymbols[pattern] || { name: 'Unknown', meaning: '不明' };
+            
+            showDialog(pattern, symbol);
+        }
+
+        function showDialog(pattern, symbol) {
+            const dialogContent = document.getElementById('dialogContent');
+            dialogContent.innerHTML = `
+                <img src="${pattern}.png" class="dialog-symbol" alt="${symbol.name}">
+                <div class="dialog-title">${symbol.name}</div>
+                <div class="dialog-text">${symbol.meaning}</div>
+                <button class="dialog-btn" onclick="closeDialog()">OK</button>
+            `;
+            
+            document.getElementById('dialogOverlay').classList.add('show');
+        }
+
+        function closeDialog() {
+            document.getElementById('dialogOverlay').classList.remove('show');
+            
+            completedSymbols.push(currentSymbol);
+            
+            const slotIndex = totalSlots - completedSymbols.length;
+            const slot = document.getElementById(`slot-${slotIndex}`);
+            if (slot) {
+                slot.innerHTML = `<img src="${currentSymbol}.png" alt="${currentSymbol}">`;
+            }
+            
+            if (completedSymbols.length >= totalSlots) {
+                showFinalDialog();
+            } else {
+                resetTapArea();
+            }
+        }
+
+        function showFinalDialog() {
+            const dialogContent = document.getElementById('dialogContent');
+            dialogContent.innerHTML = `
+                <div class="dialog-title">完了</div>
+                <div class="dialog-text">シンボルの生成が完了しました</div>
+                <button class="dialog-btn" onclick="navigateToResult()">OK</button>
+            `;
+            
+            document.getElementById('dialogOverlay').classList.add('show');
+        }
+
+        function navigateToResult() {
+            if (mode === 'ScHc') {
+                window.location.href = `ScHc.html?symbols=${completedSymbols.join(',')}`;
+            } else if (mode === 'St') {
+                window.location.href = `St.html?symbols=${completedSymbols.join(',')}`;
+            }
+        }
+
+        function resetTapArea() {
+            zoneDots = [[], [], [], []];
+            document.querySelectorAll('.tap-zone').forEach(zone => {
+                zone.innerHTML = '';
+            });
+            checkOkButton();
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        document.querySelectorAll('.tap-zone').forEach((zone, index) => {
+            zone.addEventListener('click', (e) => {
+                const rect = zone.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                addDot(index, x, y);
+            });
+
+            zone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = zone.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                addDot(index, x, y);
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSlots();
+        });
+    </script>
+</body>
+</html>
