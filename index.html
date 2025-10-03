@@ -1,1 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3f51b5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Simple Geomancy">
+    <title>Simple Geomancy</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+        }
+
+        .logo {
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 80px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .button {
+            width: 80%;
+            max-width: 500px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #d0d0d0;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 20px;
+            margin: 60px 0 40px 0;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .radio.selected {
+            border-color: #3f51b5;
+        }
+
+        .radio.selected::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #3f51b5;
+            border-radius: 50%;
+        }
+
+        .language-label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .help-link {
+            margin-top: 40px;
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                margin-bottom: 60px;
+            }
+
+            .button {
+                width: 85%;
+                padding: 18px;
+                font-size: 16px;
+            }
+
+            .language-selector {
+                margin: 40px 0 30px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="TitleLogo.png" alt="Simple Geomancy" class="logo">
+        
+        <a href="dots.html?mode=ScHc" class="button">
+            シールドチャート&ハウスチャート
+        </a>
+        
+        <a href="dots.html?mode=St" class="button">
+            シンプル・トリプシティ
+        </a>
+        
+        <a href="Oo.html" class="button">
+            ワンオラクル
+        </a>
+        
+        <div class="language-selector">
+            <div class="language-option" onclick="selectLanguage('en')">
+                <div class="radio" id="radio-en"></div>
+                <span class="language-label">English</span>
+            </div>
+            <div class="language-option" onclick="selectLanguage('fr')">
+                <div class="radio" id="radio-fr"></div>
+                <span class="language-label">Français</span>
+            </div>
+            <div class="language-option" onclick="selectLanguage('ja')">
+                <div class="radio selected" id="radio-ja"></div>
+                <span class="language-label">日本語</span>
+            </div>
+        </div>
+        
+        <a href="Help.html" class="help-link">ヘルプ</a>
+    </div>
+
+    <script>
+        let currentLanguage = 'ja';
+
+        function selectLanguage(lang) {
+            // Remove all selected states
+            document.querySelectorAll('.radio').forEach(radio => {
+                radio.classList.remove('selected');
+            });
+            
+            // Add selected state to clicked option
+            document.getElementById(`radio-${lang}`).classList.add('selected');
+            currentLanguage = lang;
+            
+            // Store language preference
+            localStorage.setItem('language', lang);
+            
+            // Here you would typically reload with language parameter or update content
+            console.log('Language selected:', lang);
+        }
+
+        // Load saved language preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage && savedLanguage !== 'ja') {
+                selectLanguage(savedLanguage);
+            }
+        });
+    </script>
+</body>
+</html>
