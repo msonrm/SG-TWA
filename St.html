@@ -57,8 +57,8 @@
         }
 
         .chart-container {
-            width: 83.33%;
-            max-width: 600px;
+            width: 100%;
+            max-width: 100%;
             margin: 0 auto;
         }
 
@@ -88,7 +88,16 @@
         const symbols = symbolsParam ? symbolsParam.split(',') : ['2211', '1122'];
 
         let canvas, ctx;
-        const CANVAS_SIZE = 800;
+
+        function getCanvasSize() {
+            const screenWidth = window.innerWidth;
+            const unit = screenWidth / 10;
+            return {
+                canvasWidth: unit * 10,
+                canvasHeight: unit * 10,
+                unit: unit
+            };
+        }
 
         function goBack() {
             window.location.href = 'index.html';
@@ -106,37 +115,44 @@
         function initCanvas() {
             canvas = document.getElementById('triplicityCanvas');
             ctx = canvas.getContext('2d');
-            canvas.width = CANVAS_SIZE;
-            canvas.height = CANVAS_SIZE;
+            
+            const { canvasWidth, canvasHeight } = getCanvasSize();
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
         }
 
         function drawGrid() {
+            const { unit } = getCanvasSize();
+            
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
 
-            // 外枠
-            ctx.strokeRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            const gridSize = unit * 8;
+            
+            // 外枠（8単位×8単位）
+            ctx.strokeRect(unit, unit, gridSize, gridSize);
 
             // 上段の縦線（2分割）
             ctx.beginPath();
-            ctx.moveTo(CANVAS_SIZE / 2, 0);
-            ctx.lineTo(CANVAS_SIZE / 2, CANVAS_SIZE / 2);
+            ctx.moveTo(unit * 5, unit);
+            ctx.lineTo(unit * 5, unit * 5);
             ctx.stroke();
 
             // 上下を分ける横線
             ctx.beginPath();
-            ctx.moveTo(0, CANVAS_SIZE / 2);
-            ctx.lineTo(CANVAS_SIZE, CANVAS_SIZE / 2);
+            ctx.moveTo(unit, unit * 5);
+            ctx.lineTo(unit * 9, unit * 5);
             ctx.stroke();
         }
 
         function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
+            const { unit } = getCanvasSize();
             const img = new Image();
             img.src = `${pattern}.png`;
             
             img.onload = () => {
                 const imgAspect = 2 / 3;
-                const baseWidth = CANVAS_SIZE / 4;
+                const baseWidth = unit;
                 const baseHeight = baseWidth / imgAspect;
                 
                 const x = cellX + (cellWidth - baseWidth) / 2;
@@ -147,7 +163,9 @@
         }
 
         function drawTriplicity() {
-            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
+            
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             drawGrid();
 
             const resultSymbol = addSymbols(symbols[0], symbols[1]);
@@ -171,17 +189,17 @@
             });
 
             function drawAllSymbols() {
-                const cellWidth = CANVAS_SIZE / 2;
-                const cellHeight = CANVAS_SIZE / 2;
+                const cellWidth = unit * 4;
+                const cellHeight = unit * 4;
 
-                // 上段右（symbols[0]）
-                drawSymbol(symbols[1], 0, 0, cellWidth, cellHeight);
+                // 上段右（symbols[1]）
+                drawSymbol(symbols[1], unit, unit, cellWidth, cellHeight);
 
-                // 上段左（symbols[1]）
-                drawSymbol(symbols[0], cellWidth, 0, cellWidth, cellHeight);
+                // 上段左（symbols[0]）
+                drawSymbol(symbols[0], unit * 5, unit, cellWidth, cellHeight);
 
                 // 下段中央（結果）
-                drawSymbol(resultSymbol, 0, cellHeight, CANVAS_SIZE, cellHeight);
+                drawSymbol(resultSymbol, unit, unit * 5, unit * 8, cellHeight);
             }
         }
 
