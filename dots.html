@@ -576,7 +576,8 @@
                 ? 'シンプル・トリプリシティを生成します' 
                 : 'シールドチャート、ハウスチャートを生成します';
             
-            const symbolsHtml = completedSymbols.map(pattern => 
+            // 右から並べるために配列を逆順に
+            const symbolsHtml = completedSymbols.slice().reverse().map(pattern => 
                 `<img src="${pattern}.png" alt="${pattern}">`
             ).join('');
             
