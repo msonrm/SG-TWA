@@ -467,7 +467,7 @@
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
 
-            function redrawChart() {
+            function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
                 
                 ctx.strokeStyle = '#333';
@@ -517,13 +517,24 @@
                 
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
                 
-                const checkbox = document.getElementById('showWitnessesCheck');
-                drawHouseSymbols(ctx, unit, checkbox.checked, 1);
+                drawHouseSymbols(ctx, unit, false, 1);
             }
 
-            redrawChart();
+            function toggleWitnesses() {
+                const checkbox = document.getElementById('showWitnessesCheck');
+                // 中央部分だけをクリア
+                ctx.clearRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                // 中央の枠線を再描画
+                ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                // 証人と裁判官を表示/非表示
+                if (checkbox.checked) {
+                    drawWitnesses(ctx, unit, 1);
+                }
+            }
+
+            drawChart();
             
-            document.getElementById('showWitnessesCheck').addEventListener('change', redrawChart);
+            document.getElementById('showWitnessesCheck').addEventListener('change', toggleWitnesses);
         }
 
         function initHouseChart2() {
@@ -534,7 +545,7 @@
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
 
-            function redrawChart() {
+            function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
                 
                 ctx.strokeStyle = '#333';
@@ -584,13 +595,24 @@
                 
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
                 
-                const checkbox = document.getElementById('showWitnessesCheck2');
-                drawHouseSymbols(ctx, unit, checkbox.checked, 2);
+                drawHouseSymbols(ctx, unit, false, 2);
             }
 
-            redrawChart();
+            function toggleWitnesses() {
+                const checkbox = document.getElementById('showWitnessesCheck2');
+                // 中央部分だけをクリア
+                ctx.clearRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                // 中央の枠線を再描画
+                ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
+                // 証人と裁判官を表示/非表示
+                if (checkbox.checked) {
+                    drawWitnesses(ctx, unit, 2);
+                }
+            }
+
+            drawChart();
             
-            document.getElementById('showWitnessesCheck2').addEventListener('change', redrawChart);
+            document.getElementById('showWitnessesCheck2').addEventListener('change', toggleWitnesses);
         }
 
         function drawHouseSymbols(ctx, unit, showWitnesses, chartType) {
@@ -660,26 +682,30 @@
                     ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
                 };
             });
+        }
+
+        function drawWitnesses(ctx, unit, chartType) {
+            if (!shieldChartData) {
+                shieldChartData = calculateShieldData();
+            }
 
             // 中央の3つのシンボル（証人と裁判官）
-            if (showWitnesses) {
-                const witnesses = [
-                    { x: unit * 5.5, y: unit * 3.35, pattern: shieldChartData.witnesses[0] },  // 右の証人
-                    { x: unit * 3.5, y: unit * 3.35, pattern: shieldChartData.witnesses[1] },  // 左の証人
-                    { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }          // 裁判官
-                ];
+            const witnesses = [
+                { x: unit * 5.5, y: unit * 3.35, pattern: shieldChartData.witnesses[0] },  // 右の証人
+                { x: unit * 3.5, y: unit * 3.35, pattern: shieldChartData.witnesses[1] },  // 左の証人
+                { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }          // 裁判官
+            ];
 
-                witnesses.forEach(witness => {
-                    const img = new Image();
-                    img.src = `${witness.pattern}.png`;
-                    img.onload = () => {
-                        const imgAspect = 2 / 3;
-                        const baseWidth = unit;
-                        const baseHeight = baseWidth / imgAspect;
-                        ctx.drawImage(img, witness.x, witness.y, baseWidth, baseHeight);
-                    };
-                });
-            }
+            witnesses.forEach(witness => {
+                const img = new Image();
+                img.src = `${witness.pattern}.png`;
+                img.onload = () => {
+                    const imgAspect = 2 / 3;
+                    const baseWidth = unit;
+                    const baseHeight = baseWidth / imgAspect;
+                    ctx.drawImage(img, witness.x, witness.y, baseWidth, baseHeight);
+                };
+            });
         }
 
         window.addEventListener('DOMContentLoaded', () => {
