@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dots - Simple Geomancy</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -40,8 +41,20 @@
             line-height: 1;
         }
 
-        .palette-icon {
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .palette-btn {
+            font-family: 'Material Symbols Outlined';
             font-size: 24px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
         }
 
         .ok-btn {
@@ -187,13 +200,104 @@
         .dialog-btn:active {
             transform: translateY(1px);
         }
+
+        .color-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .color-dialog-overlay.show {
+            display: flex;
+        }
+
+        .color-dialog {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-dialog-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .color-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            cursor: pointer;
+        }
+
+        .color-radio {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #999;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .color-option.selected .color-radio {
+            border-color: #00897b;
+        }
+
+        .color-radio-inner {
+            width: 12px;
+            height: 12px;
+            background: #00897b;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .color-option.selected .color-radio-inner {
+            display: block;
+        }
+
+        .color-label {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .color-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .color-dialog-btn {
+            background: none;
+            border: none;
+            color: #00897b;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="close-btn" onclick="goBack()">×</button>
-        <span class="palette-icon">🎨</span>
-        <button class="ok-btn" id="okBtn" onclick="completeRound()">OK</button>
+        <div class="header-right">
+            <button class="palette-btn" onclick="openColorDialog()">palette</button>
+            <button class="ok-btn" id="okBtn" onclick="completeRound()">OK</button>
+        </div>
     </div>
 
     <div class="tap-area" id="tapArea">
@@ -219,6 +323,45 @@
         </div>
     </div>
 
+    <div class="color-dialog-overlay" id="colorDialogOverlay">
+        <div class="color-dialog">
+            <div class="color-dialog-title">ドット色を選択</div>
+            <div class="color-option selected" data-color="#333" onclick="selectColor('#333', this)">
+                <div class="color-radio">
+                    <div class="color-radio-inner"></div>
+                </div>
+                <div class="color-label">黒</div>
+            </div>
+            <div class="color-option" data-color="#d32f2f" onclick="selectColor('#d32f2f', this)">
+                <div class="color-radio">
+                    <div class="color-radio-inner"></div>
+                </div>
+                <div class="color-label">赤</div>
+            </div>
+            <div class="color-option" data-color="#f57c00" onclick="selectColor('#f57c00', this)">
+                <div class="color-radio">
+                    <div class="color-radio-inner"></div>
+                </div>
+                <div class="color-label">オレンジ</div>
+            </div>
+            <div class="color-option" data-color="#388e3c" onclick="selectColor('#388e3c', this)">
+                <div class="color-radio">
+                    <div class="color-radio-inner"></div>
+                </div>
+                <div class="color-label">緑</div>
+            </div>
+            <div class="color-option" data-color="#1976d2" onclick="selectColor('#1976d2', this)">
+                <div class="color-radio">
+                    <div class="color-radio-inner"></div>
+                </div>
+                <div class="color-label">青</div>
+            </div>
+            <div class="color-dialog-actions">
+                <button class="color-dialog-btn" onclick="applyColorChange()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode') || 'ScHc';
@@ -227,6 +370,8 @@
         let zoneDots = [[], [], [], []];
         let completedSymbols = [];
         let currentSymbol = null;
+        let currentDotColor = '#333';
+        let selectedColor = '#333';
 
         const geomancySymbols = {
             '2222': { name: 'Populus', meaning: '人々・安定' },
@@ -287,6 +432,7 @@
             dot.className = 'dot';
             dot.style.left = adjustedX + 'px';
             dot.style.top = adjustedY + 'px';
+            dot.style.background = currentDotColor;
             zoneElement.appendChild(dot);
             
             zoneDots[zone].push({ x: adjustedX, y: adjustedY });
@@ -347,7 +493,7 @@
                     const dot1 = dots[pairIndex * 2];
                     const dot2 = dots[pairIndex * 2 + 1];
                     
-                    ctx.strokeStyle = '#666';
+                    ctx.strokeStyle = currentDotColor;
                     ctx.lineWidth = 2;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
@@ -426,6 +572,29 @@
 
         function goBack() {
             window.location.href = 'index.html';
+        }
+
+        function openColorDialog() {
+            document.getElementById('colorDialogOverlay').classList.add('show');
+        }
+
+        function selectColor(color, element) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedColor = color;
+        }
+
+        function applyColorChange() {
+            currentDotColor = selectedColor;
+            
+            // 既存のすべてのドットの色を変更
+            document.querySelectorAll('.dot').forEach(dot => {
+                dot.style.background = currentDotColor;
+            });
+            
+            document.getElementById('colorDialogOverlay').classList.remove('show');
         }
 
         document.querySelectorAll('.tap-zone').forEach((zone, index) => {
