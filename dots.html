@@ -155,7 +155,6 @@
 
         .dialog {
             background: white;
-            border-radius: 12px;
             padding: 24px;
             max-width: 320px;
             width: 90%;
@@ -167,8 +166,8 @@
         }
 
         .dialog-symbol {
-            width: 80px;
-            height: 120px;
+            width: 60px;
+            height: 90px;
             object-fit: contain;
         }
 
@@ -188,8 +187,8 @@
         }
 
         .dialog-symbols-grid img {
-            width: 60px;
-            height: 90px;
+            width: 48px;
+            height: 72px;
             object-fit: contain;
         }
 
@@ -238,7 +237,6 @@
 
         .color-dialog {
             background: white;
-            border-radius: 12px;
             padding: 24px;
             max-width: 320px;
             width: 90%;
@@ -531,7 +529,13 @@
 
         function showDialog(pattern, symbol) {
             const symbolNumber = completedSymbols.length;
-            const jpName = motherNames[symbolNumber] || '母';
+            let jpName;
+            
+            if (mode === 'St') {
+                jpName = `${symbolNumber + 1}つ目のシンボル`;
+            } else {
+                jpName = motherNames[symbolNumber] || '母';
+            }
             
             const dialogContent = document.getElementById('dialogContent');
             dialogContent.innerHTML = `
@@ -661,6 +665,11 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initSlots();
+            
+            // mode=Stのときはパレットアイコンを非表示
+            if (mode === 'St') {
+                document.querySelector('.palette-btn').style.display = 'none';
+            }
         });
     </script>
 </body>
