@@ -260,13 +260,36 @@
 
         function addDot(zone, x, y) {
             const zoneElement = document.querySelector(`[data-zone="${zone}"]`);
+            const rect = zoneElement.getBoundingClientRect();
+            
+            // 境界からの最小距離（マージン）
+            const margin = 12;
+            
+            // ドットの位置を境界から離す
+            let adjustedX = x;
+            let adjustedY = y;
+            
+            // 左右の境界チェック
+            if (adjustedX < margin) {
+                adjustedX = margin;
+            } else if (adjustedX > rect.width - margin) {
+                adjustedX = rect.width - margin;
+            }
+            
+            // 上下の境界チェック
+            if (adjustedY < margin) {
+                adjustedY = margin;
+            } else if (adjustedY > rect.height - margin) {
+                adjustedY = rect.height - margin;
+            }
+            
             const dot = document.createElement('div');
             dot.className = 'dot';
-            dot.style.left = x + 'px';
-            dot.style.top = y + 'px';
+            dot.style.left = adjustedX + 'px';
+            dot.style.top = adjustedY + 'px';
             zoneElement.appendChild(dot);
             
-            zoneDots[zone].push({ x, y });
+            zoneDots[zone].push({ x: adjustedX, y: adjustedY });
             checkOkButton();
         }
 
