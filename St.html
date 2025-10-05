@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Simple Triplicity - Simple Geomancy</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -40,7 +41,9 @@
         }
 
         .share-btn {
+            font-family: 'Material Symbols Outlined';
             font-size: 24px;
+            color: #333;
             background: none;
             border: none;
             cursor: pointer;
@@ -52,7 +55,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 0;
             overflow: auto;
         }
 
@@ -73,7 +76,7 @@
 <body>
     <div class="header">
         <button class="close-btn" onclick="goBack()">×</button>
-        <button class="share-btn">🔗</button>
+        <button class="share-btn" onclick="shareChart()">share</button>
     </div>
 
     <div class="content">
@@ -101,6 +104,59 @@
 
         function goBack() {
             window.location.href = 'index.html';
+        }
+
+        async function shareChart() {
+            const canvas = document.getElementById('triplicityCanvas');
+            const fileName = 'simple-triplicity.png';
+            
+            if (!canvas) {
+                console.error('Canvas not found');
+                return;
+            }
+            
+            try {
+                // canvasをblobに変換
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        console.error('Failed to create blob from canvas');
+                        return;
+                    }
+                    
+                    // Web Share APIが利用可能かチェック
+                    if (navigator.share && navigator.canShare) {
+                        const file = new File([blob], fileName, { type: 'image/png' });
+                        const shareData = {
+                            files: [file],
+                            title: 'Simple Geomancy - Simple Triplicity'
+                        };
+                        
+                        if (navigator.canShare(shareData)) {
+                            await navigator.share(shareData);
+                        } else {
+                            // ファイル共有がサポートされていない場合はダウンロード
+                            downloadImage(blob, fileName);
+                        }
+                    } else {
+                        // Web Share APIが利用できない場合はダウンロード
+                        downloadImage(blob, fileName);
+                    }
+                }, 'image/png');
+            } catch (error) {
+                console.error('Error sharing chart:', error);
+            }
+        }
+        
+        function downloadImage(blob, fileName) {
+            // フォールバック: 画像をダウンロード
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function addSymbols(pattern1, pattern2) {
