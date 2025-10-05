@@ -44,7 +44,7 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         .palette-btn {
@@ -332,19 +332,19 @@
                 </div>
                 <div class="color-label">黒</div>
             </div>
-            <div class="color-option" data-color="#d32f2f" onclick="selectColor('#d32f2f', this)">
+            <div class="color-option" data-color="#f44336" onclick="selectColor('#f44336', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
                 <div class="color-label">赤</div>
             </div>
-            <div class="color-option" data-color="#f57c00" onclick="selectColor('#f57c00', this)">
+            <div class="color-option" data-color="#ff9800" onclick="selectColor('#ff9800', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
                 <div class="color-label">オレンジ</div>
             </div>
-            <div class="color-option" data-color="#388e3c" onclick="selectColor('#388e3c', this)">
+            <div class="color-option" data-color="#4caf50" onclick="selectColor('#4caf50', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
@@ -593,6 +593,9 @@
             document.querySelectorAll('.dot').forEach(dot => {
                 dot.style.background = currentDotColor;
             });
+            
+            // パレットアイコンの色も変更
+            document.querySelector('.palette-btn').style.color = currentDotColor;
             
             document.getElementById('colorDialogOverlay').classList.remove('show');
         }
