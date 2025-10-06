@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>One Oracle - Simple Geomancy</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
             margin: 0;
@@ -17,7 +18,8 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
+            touch-action: none;
         }
 
         .header {
@@ -40,7 +42,9 @@
         }
 
         .help-btn {
+            font-family: 'Material Symbols Outlined';
             font-size: 24px;
+            color: #333;
             background: none;
             border: none;
             cursor: pointer;
@@ -92,12 +96,13 @@
         }
 
         .generate-button {
+            font-family: 'Material Symbols Outlined';
             background: #888;
-            color: white;
+            color: #333;
             border: none;
             padding: 20px 60px;
             border-radius: 12px;
-            font-size: 48px;
+            font-size: 40px;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
@@ -134,7 +139,6 @@
 
         .dialog {
             background: white;
-            border-radius: 12px;
             padding: 24px;
             max-width: 320px;
             width: 90%;
@@ -146,32 +150,19 @@
         }
 
         .dialog-symbol {
-            width: 120px;
-            height: 180px;
-            margin: 16px auto;
-        }
-
-        .dialog-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
-        }
-
-        .dialog-text {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.6;
+            width: 90px;
+            height: 135px;
+            object-fit: contain;
+            margin: 32px auto 16px auto;
         }
 
         .dialog-btn {
-            background: #888;
-            color: white;
+            background: none;
             border: none;
-            padding: 12px 32px;
-            border-radius: 6px;
+            color: #00897b;
             font-size: 16px;
+            font-weight: 600;
+            padding: 8px 16px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -180,7 +171,7 @@
 <body>
     <div class="header">
         <button class="close-btn" onclick="goBack()">×</button>
-        <button class="help-btn">❓</button>
+        <button class="help-btn">help</button>
     </div>
 
     <div class="tap-area">
@@ -199,7 +190,7 @@
     </div>
 
     <div class="bottom-button-area">
-        <button class="generate-button" id="generateBtn">👆</button>
+        <button class="generate-button" id="generateBtn">touch_app</button>
     </div>
 
     <div class="dialog-overlay" id="dialogOverlay">
@@ -255,7 +246,7 @@
             zoneDots[zoneIndex].push({ x, y });
         }
 
-        function drawPairingLines(zoneIndex) {
+        function drawPairingLines(zoneIndex, callback) {
             const canvas = document.querySelector(`[data-canvas="${zoneIndex}"]`);
             const ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth;
@@ -268,6 +259,7 @@
             
             function drawNextPair() {
                 if (pairIndex >= totalPairs) {
+                    if (callback) callback();
                     return;
                 }
                 
@@ -308,22 +300,30 @@
             isHolding = false;
             clearInterval(holdInterval);
             
+            const btn = document.getElementById('generateBtn');
+            
             if (zoneDots[currentZone].length > 0) {
+                // 指を離した時点でボタンを無効化
+                btn.classList.add('disabled');
+                
                 const zoneToComplete = currentZone;
                 
                 setTimeout(() => {
-                    drawPairingLines(zoneToComplete);
-                    
-                    setTimeout(() => {
-                        completedZones++;
-                        currentZone++;
-                        
-                        if (completedZones >= 4) {
-                            const btn = document.getElementById('generateBtn');
-                            btn.classList.add('disabled');
-                            setTimeout(showResult, 500);
-                        }
-                    }, Math.floor(zoneDots[zoneToComplete].length / 2) * 100 + 200);
+                    drawPairingLines(zoneToComplete, () => {
+                        // 線の描画が完了したら処理を続ける
+                        setTimeout(() => {
+                            completedZones++;
+                            currentZone++;
+                            
+                            if (completedZones >= 4) {
+                                // 4つ目が完了したらボタンは無効のまま
+                                setTimeout(showResult, 500);
+                            } else {
+                                // まだゾーンが残っている場合はボタンを再び有効化
+                                btn.classList.remove('disabled');
+                            }
+                        }, 200);
+                    });
                 }, 200);
             }
         }
@@ -335,9 +335,10 @@
             const dialogContent = document.getElementById('dialogContent');
             dialogContent.innerHTML = `
                 <img src="${pattern}.png" class="dialog-symbol" alt="${symbol.name}">
-                <div class="dialog-title">${symbol.name}</div>
-                <div class="dialog-text">${symbol.meaning}</div>
-                <button class="dialog-btn" onclick="closeDialog()">OK</button>
+                <div style="font-size: 24px; font-family: Georgia, 'Times New Roman', serif; color: #333; margin-bottom: 20px;">${symbol.name}</div>
+                <div style="text-align: right;">
+                    <button class="dialog-btn" onclick="closeDialog()">OK</button>
+                </div>
             `;
             
             document.getElementById('dialogOverlay').classList.add('show');
