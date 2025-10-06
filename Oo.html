@@ -110,6 +110,10 @@
             touch-action: none;
         }
 
+        .generate-button.holding {
+            background: #9a9a9a;
+        }
+
         .generate-button:active {
             background: #666;
             transform: scale(0.95);
@@ -286,6 +290,12 @@
             
             isHolding = true;
             const btn = document.getElementById('generateBtn');
+            btn.classList.add('holding');
+            
+            // 振動フィードバック（対応デバイスのみ）
+            if (navigator.vibrate) {
+                navigator.vibrate(50); // 50ミリ秒の短い振動
+            }
             
             holdInterval = setInterval(() => {
                 if (isHolding) {
@@ -301,6 +311,7 @@
             clearInterval(holdInterval);
             
             const btn = document.getElementById('generateBtn');
+            btn.classList.remove('holding');
             
             if (zoneDots[currentZone].length > 0) {
                 // 指を離した時点でボタンを無効化
@@ -368,6 +379,7 @@
             // ボタンを再び有効化
             const btn = document.getElementById('generateBtn');
             btn.classList.remove('disabled');
+            btn.classList.remove('holding');
         }
 
         const btn = document.getElementById('generateBtn');
