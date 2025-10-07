@@ -334,20 +334,25 @@
             const { unit } = getCanvasSize();
             const checkbox = document.getElementById('showReconcilerCheck');
             
-            // 調停者領域（右下）だけをクリア
-            ctx.clearRect(unit * 6.8, unit * 6.8, unit * 2.2, unit * 2.2);
+            // 右下の調停者領域と区切り線をクリア
+            ctx.clearRect(unit * 6.5, unit * 6.5, unit * 2.5, unit * 2.5);
             
-            // 枠線を再描画
+            // 下の枠線を再描画
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
+            const gridSize = unit * 8;
+            const rowHeights = [
+                unit + gridSize * 0.25,
+                unit + gridSize * 0.50,
+                unit + gridSize * 0.75,
+                unit + gridSize
+            ];
             
-            // 下の横線
             ctx.beginPath();
-            ctx.moveTo(unit * 7, unit * 9);
-            ctx.lineTo(unit * 9, unit * 9);
+            ctx.moveTo(unit, rowHeights[3]);
+            ctx.lineTo(unit * 9, rowHeights[3]);
             ctx.stroke();
             
-            // 右の縦線
             ctx.beginPath();
             ctx.moveTo(unit * 9, unit * 7);
             ctx.lineTo(unit * 9, unit * 9);
@@ -355,19 +360,28 @@
             
             // チェックされていれば調停者と区切り線を描画
             if (checkbox.checked) {
-                // 区切り線を描画
-                ctx.beginPath();
-                ctx.moveTo(unit * 7, unit * 7);
-                ctx.lineTo(unit * 7, unit * 9);
-                ctx.stroke();
-                
-                // 調停者のシンボルを描画
                 drawReconciler();
             }
         }
 
         function drawReconciler() {
             const { unit } = getCanvasSize();
+            
+            // 区切り線を描画
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            const gridSize = unit * 8;
+            const rowHeights = [
+                unit + gridSize * 0.25,
+                unit + gridSize * 0.50,
+                unit + gridSize * 0.75,
+                unit + gridSize
+            ];
+            
+            ctx.beginPath();
+            ctx.moveTo(unit * 7, rowHeights[2]);
+            ctx.lineTo(unit * 7, rowHeights[3]);
+            ctx.stroke();
             
             // 調停者のシンボルを描画
             if (!shieldChartData) {
