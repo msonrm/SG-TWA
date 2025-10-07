@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Help - Simple Geomancy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #d8d8d8;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            font-size: 28px;
+            color: #333;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .section-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="close-btn" onclick="goBack()">×</button>
+        <div></div>
+    </div>
+
+    <div class="content">
+        <div class="section">
+            <div class="section-title">ジオマンシーとは</div>
+            <div class="section-text">
+                古代から伝わる土占い。16のシンボルを使います。シンプルでありながら、具体的で明快なメッセージを受け取ることができます。
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">このアプリについて</div>
+            <div class="section-text">
+                このアプリでは、ドットを打つという伝統的なやり方で、簡単にジオマンシーで占うことができます。チャート表示画面の右上にあるシェアボタンから、結果を画像としてSNSにシェアしたり、保存したりすることができます。なお、各シンボルやチャートの意味・解釈については、このアプリには含まれていません。それぞれのシンボルが持つメッセージを、ご自身で調べながら読み解いてください。
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">シールドチャート・ハウスチャート</div>
+            <div class="section-text">
+                伝統的な占い方です。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。4つすべてにドットが打たれたら右上の「OK」ボタンを押してください。ドットの個数（偶数・奇数）に応じてジオマンシーのシンボルが決まります。これを4回繰り返すと4つのシンボルが決まり、シールドチャートとハウスチャートが表示されます。
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">シンプル・トリプリシティ</div>
+            <div class="section-text">
+                シールドチャート・ハウスチャートと同じ方法でドットを打ち、シンボルを2つ生成します。この2つのシンボルから、よりシンプルに占うことができます。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。これを2回繰り返すと、シンプル・トリプリシティのチャートが表示されます。
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">ワンオラクル</div>
+            <div class="section-text">
+                ワンオラクルは最も基本的な占い方で、ただ一つのシンボルから答えを導き出します。画面下のボタンを4回長押しするとすぐにシンボルが1つ決まります。シンプルで直感的な答えを求めるときに最適です。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
