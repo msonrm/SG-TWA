@@ -753,6 +753,7 @@
             
             chartsWrapper.addEventListener('touchstart', (e) => {
                 touchStartX = e.touches[0].clientX;
+                touchEndX = e.touches[0].clientX;
                 isDragging = true;
             }, { passive: true });
             
@@ -766,7 +767,7 @@
                 isDragging = false;
                 
                 const swipeDistance = touchStartX - touchEndX;
-                const threshold = 50;
+                const threshold = 50; // 50px以上移動した場合のみスワイプと判定
                 
                 if (Math.abs(swipeDistance) > threshold) {
                     if (swipeDistance > 0 && currentTabIndex < 2) {
