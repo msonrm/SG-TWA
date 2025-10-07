@@ -672,6 +672,52 @@
                 document.querySelector('.palette-btn').style.display = 'none';
             }
         });
+
+        // ブラウザの戻るボタンで戻ってきた時に初期状態にリセット
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                // bfcache（Back-Forward Cache）から復元された場合
+                resetAllState();
+            }
+        });
+
+        function resetAllState() {
+            // 変数をリセット
+            zoneDots = [[], [], [], []];
+            completedSymbols = [];
+            currentSymbol = null;
+            currentDotColor = '#333';
+            selectedColor = '#333';
+            
+            // ドットを削除
+            document.querySelectorAll('.tap-zone').forEach(zone => {
+                zone.querySelectorAll('.dot').forEach(dot => dot.remove());
+            });
+            
+            // canvasをクリア
+            document.querySelectorAll('.zone-canvas').forEach(canvas => {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+            
+            // ダイアログを閉じる
+            document.getElementById('dialogOverlay').classList.remove('show');
+            document.getElementById('colorDialogOverlay').classList.remove('show');
+            
+            // スロットをクリア
+            document.querySelectorAll('.symbol-slot').forEach(slot => {
+                slot.innerHTML = '';
+            });
+            
+            // OKボタンを無効化
+            const okBtn = document.getElementById('okBtn');
+            okBtn.classList.remove('active');
+            
+            // パレットアイコンの色をリセット
+            if (mode !== 'St') {
+                document.querySelector('.palette-btn').style.color = '#333';
+            }
+        }
     </script>
 </body>
 </html>
