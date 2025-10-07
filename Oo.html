@@ -400,6 +400,14 @@
             e.preventDefault();
             stopHolding();
         });
+
+        // ブラウザの戻るボタンで戻ってきた時に初期状態にリセット
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                // bfcache（Back-Forward Cache）から復元された場合
+                resetScreen();
+            }
+        });
     </script>
 </body>
 </html>
