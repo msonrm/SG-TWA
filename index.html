@@ -295,23 +295,34 @@
 
         // 保存された言語設定を読み込む関数
         function loadLanguagePreference() {
+            let isFirstVisit = false;
+            let detectedLanguage = null;
+            
             try {
                 const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
                 if (savedLanguage && translations[savedLanguage]) {
-                    return savedLanguage;
+                    return { language: savedLanguage, isFirstVisit: false };
                 }
             } catch (e) {
                 console.error('Failed to load language preference:', e);
             }
             
             // 保存された設定がない場合はシステム言語を検出
-            return detectSystemLanguage();
+            detectedLanguage = detectSystemLanguage();
+            isFirstVisit = true;
+            
+            return { language: detectedLanguage, isFirstVisit: isFirstVisit };
         }
 
         // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', () => {
-            const savedLanguage = loadLanguagePreference();
-            selectLanguage(savedLanguage);
+            const result = loadLanguagePreference();
+            selectLanguage(result.language);
+            
+            // 初回訪問時はシステム言語検出結果をログに出力（デバッグ用）
+            if (result.isFirstVisit) {
+                console.log('First visit detected. System language set to:', result.language);
+            }
         });
 
         // 他のページから戻ってきた時の処理（bfcache対応）
