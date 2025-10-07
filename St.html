@@ -18,7 +18,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .header {
@@ -56,7 +56,7 @@
             align-items: center;
             justify-content: center;
             padding: 0;
-            overflow: auto;
+            overflow: hidden;
         }
 
         .chart-container {
@@ -116,14 +116,12 @@
             }
             
             try {
-                // canvasをblobに変換
                 canvas.toBlob(async (blob) => {
                     if (!blob) {
                         console.error('Failed to create blob from canvas');
                         return;
                     }
                     
-                    // Web Share APIが利用可能かチェック
                     if (navigator.share && navigator.canShare) {
                         const file = new File([blob], fileName, { type: 'image/png' });
                         const shareData = {
@@ -134,11 +132,9 @@
                         if (navigator.canShare(shareData)) {
                             await navigator.share(shareData);
                         } else {
-                            // ファイル共有がサポートされていない場合はダウンロード
                             downloadImage(blob, fileName);
                         }
                     } else {
-                        // Web Share APIが利用できない場合はダウンロード
                         downloadImage(blob, fileName);
                     }
                 }, 'image/png');
@@ -148,7 +144,6 @@
         }
         
         function downloadImage(blob, fileName) {
-            // フォールバック: 画像をダウンロード
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -185,16 +180,13 @@
 
             const gridSize = unit * 8;
             
-            // 外枠（8単位×8単位）
             ctx.strokeRect(unit, unit, gridSize, gridSize);
 
-            // 上段の縦線（2分割）
             ctx.beginPath();
             ctx.moveTo(unit * 5, unit);
             ctx.lineTo(unit * 5, unit * 5);
             ctx.stroke();
 
-            // 上下を分ける横線
             ctx.beginPath();
             ctx.moveTo(unit, unit * 5);
             ctx.lineTo(unit * 9, unit * 5);
@@ -248,13 +240,10 @@
                 const cellWidth = unit * 4;
                 const cellHeight = unit * 4;
 
-                // 上段右（symbols[1]）
                 drawSymbol(symbols[1], unit, unit, cellWidth, cellHeight);
 
-                // 上段左（symbols[0]）
                 drawSymbol(symbols[0], unit * 5, unit, cellWidth, cellHeight);
 
-                // 下段中央（結果）
                 drawSymbol(resultSymbol, unit, unit * 5, unit * 8, cellHeight);
             }
         }
