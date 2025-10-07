@@ -54,7 +54,8 @@
         .button {
             width: 80%;
             max-width: 500px;
-            padding: 20px;
+            min-height: 64px;
+            padding: 12px 20px;
             background: #d0d0d0;
             border: none;
             border-radius: 6px;
@@ -69,6 +70,7 @@
             transition: all 0.2s ease;
             cursor: pointer;
             flex-shrink: 0;
+            text-align: center;
         }
 
         .button:active {
@@ -152,7 +154,8 @@
         @media (max-width: 480px) {
             .button {
                 width: 85%;
-                padding: 18px;
+                min-height: 60px;
+                padding: 10px 18px;
                 font-size: 16px;
             }
         }
@@ -194,7 +197,7 @@
                 <span class="language-label">Français</span>
             </div>
             <div class="language-option" onclick="selectLanguage('ja')">
-                <div class="radio selected" id="radio-ja"></div>
+                <div class="radio" id="radio-ja"></div>
                 <span class="language-label">日本語</span>
             </div>
         </div>
@@ -270,6 +273,26 @@
             document.getElementById('helpLink').textContent = texts.helpLink;
         }
 
+        // システム言語を検出する関数
+        function detectSystemLanguage() {
+            // ブラウザの言語設定を取得
+            const browserLang = navigator.language || navigator.userLanguage;
+            const browserLangs = navigator.languages || [browserLang];
+            
+            // 優先順位で言語を判定
+            for (let lang of browserLangs) {
+                const langCode = lang.toLowerCase().split('-')[0]; // 'en-US' -> 'en'
+                
+                // サポートしている言語かチェック
+                if (langCode === 'en' || langCode === 'fr' || langCode === 'ja') {
+                    return langCode;
+                }
+            }
+            
+            // どの言語にも該当しない場合はフランス語を優先（アフリカ圏での普及を考慮）
+            return 'fr';
+        }
+
         // 保存された言語設定を読み込む関数
         function loadLanguagePreference() {
             try {
@@ -281,16 +304,14 @@
                 console.error('Failed to load language preference:', e);
             }
             
-            // デフォルトは日本語
-            return 'ja';
+            // 保存された設定がない場合はシステム言語を検出
+            return detectSystemLanguage();
         }
 
         // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', () => {
             const savedLanguage = loadLanguagePreference();
-            if (savedLanguage !== 'ja') {
-                selectLanguage(savedLanguage);
-            }
+            selectLanguage(savedLanguage);
         });
 
         // 他のページから戻ってきた時の処理（bfcache対応）
