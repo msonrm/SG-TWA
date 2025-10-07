@@ -170,12 +170,20 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
+
+        .help-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.8;
+            margin: 24px 0;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="close-btn" onclick="goBack()">×</button>
-        <button class="help-btn">help</button>
+        <button class="help-btn" onclick="showHelp()">help</button>
     </div>
 
     <div class="tap-area">
@@ -231,6 +239,23 @@
 
         function goBack() {
             window.location.href = 'index.html';
+        }
+
+        function showHelp() {
+            const dialogContent = document.getElementById('dialogContent');
+            dialogContent.innerHTML = `
+                <div class="help-text">
+                    下のボタンを長押しすると、1番目の枠にランダムにドットが打たれていきます。好きなタイミングで手を離すと確定し、これを4回繰り返すと、シンボルが1つ生成されます。
+                </div>
+                <div style="text-align: right;">
+                    <button class="dialog-btn" onclick="closeHelp()">OK</button>
+                </div>
+            `;
+            document.getElementById('dialogOverlay').classList.add('show');
+        }
+
+        function closeHelp() {
+            document.getElementById('dialogOverlay').classList.remove('show');
         }
 
         function addRandomDot(zoneIndex) {
@@ -375,6 +400,9 @@
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
+            
+            // ダイアログを閉じる
+            document.getElementById('dialogOverlay').classList.remove('show');
             
             // ボタンを再び有効化
             const btn = document.getElementById('generateBtn');
