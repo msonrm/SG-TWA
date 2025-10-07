@@ -18,7 +18,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .header {
@@ -102,7 +102,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 20vw;
+            padding-top: 10vw;
         }
 
         #shieldCanvas, #houseCanvas1, #houseCanvas2 {
@@ -128,6 +128,12 @@
         <div class="charts-wrapper" id="chartsWrapper">
             <div class="chart-container" id="shieldChart">
                 <canvas id="shieldCanvas"></canvas>
+                <div style="text-align: center; margin-top: 20px;">
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="showReconcilerCheck" style="width: 18px; height: 18px;">
+                        <span style="font-size: 15px; color: #333;">調停者を表示する</span>
+                    </label>
+                </div>
             </div>
 
             <div class="chart-container" id="houseChart1">
@@ -319,6 +325,75 @@
             const { canvasWidth, canvasHeight } = getCanvasSize();
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
+            
+            // 調停者表示チェックボックスのイベントリスナー
+            document.getElementById('showReconcilerCheck').addEventListener('change', toggleReconciler);
+        }
+
+        function toggleReconciler() {
+            const { unit } = getCanvasSize();
+            const checkbox = document.getElementById('showReconcilerCheck');
+            
+            // 調停者領域（右下）だけをクリア
+            ctx.clearRect(unit * 6.8, unit * 6.8, unit * 2.2, unit * 2.2);
+            
+            // 枠線を再描画
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            // 下の横線
+            ctx.beginPath();
+            ctx.moveTo(unit * 7, unit * 9);
+            ctx.lineTo(unit * 9, unit * 9);
+            ctx.stroke();
+            
+            // 右の縦線
+            ctx.beginPath();
+            ctx.moveTo(unit * 9, unit * 7);
+            ctx.lineTo(unit * 9, unit * 9);
+            ctx.stroke();
+            
+            // チェックされていれば調停者と区切り線を描画
+            if (checkbox.checked) {
+                // 区切り線を描画
+                ctx.beginPath();
+                ctx.moveTo(unit * 7, unit * 7);
+                ctx.lineTo(unit * 7, unit * 9);
+                ctx.stroke();
+                
+                // 調停者のシンボルを描画
+                drawReconciler();
+            }
+        }
+
+        function drawReconciler() {
+            const { unit } = getCanvasSize();
+            
+            // 調停者のシンボルを描画
+            if (!shieldChartData) {
+                shieldChartData = calculateShieldData();
+            }
+            
+            const judge = shieldChartData.judge;
+            const reconciler = addSymbols(mothers[0], judge);
+            
+            const img = new Image();
+            img.src = `${reconciler}.png`;
+            img.onload = () => {
+                const imgAspect = 2 / 3;
+                const baseWidth = unit;
+                const baseHeight = baseWidth / imgAspect;
+                
+                const reconcilerX = unit * 7;
+                const reconcilerWidth = unit * 2;
+                const row4Height = unit * 2;
+                const y4 = unit * 7;
+                
+                const x = reconcilerX + (reconcilerWidth - baseWidth) / 2;
+                const y = y4 + (row4Height - baseHeight) / 2;
+                
+                ctx.drawImage(img, x, y, baseWidth, baseHeight);
+            };
         }
 
         function drawGrid() {
@@ -364,11 +439,6 @@
             ctx.moveTo(unit * 5, rowHeights[1]);
             ctx.lineTo(unit * 5, rowHeights[2]);
             ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(unit * 7, rowHeights[2]);
-            ctx.lineTo(unit * 7, rowHeights[3]);
-            ctx.stroke();
         }
 
         function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
@@ -409,9 +479,8 @@
             ];
 
             const judge = addSymbols(witnesses[0], witnesses[1]);
-            const reconciler = addSymbols(mothers[0], judge);
 
-            const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge, reconciler];
+            const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge];
             let loadedCount = 0;
             const totalSymbols = allSymbols.length;
 
@@ -463,10 +532,6 @@
                 const y4 = unit * 7;
                 
                 drawSymbol(judge, unit, y4, unit * 8, row4Height);
-                
-                const reconcilerX = unit * 7;
-                const reconcilerWidth = unit * 2;
-                drawSymbol(reconciler, reconcilerX, y4, reconcilerWidth, row4Height);
             }
         }
 
