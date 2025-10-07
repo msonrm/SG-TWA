@@ -57,7 +57,7 @@
             padding: 20px;
             background: #d0d0d0;
             border: none;
-            border-radius: 12px;
+            border-radius: 6px;
             font-size: 18px;
             font-weight: 500;
             color: #333;
@@ -166,19 +166,19 @@
         
         <div class="spacer-middle"></div>
         
-        <a href="dots.html?mode=ScHc" class="button">
+        <a href="dots.html?mode=ScHc" class="button" id="btnScHc">
             シールドチャート&ハウスチャート
         </a>
         
         <div class="spacer-button-1"></div>
         
-        <a href="dots.html?mode=St" class="button">
+        <a href="dots.html?mode=St" class="button" id="btnSt">
             シンプル・トリプシティ
         </a>
         
         <div class="spacer-button-2"></div>
         
-        <a href="Oo.html" class="button">
+        <a href="Oo.html" class="button" id="btnOo">
             ワンオラクル
         </a>
         
@@ -201,35 +201,102 @@
         
         <div class="spacer-lang"></div>
         
-        <a href="Help.html" class="help-link">ヘルプ</a>
+        <a href="Help.html" class="help-link" id="helpLink">ヘルプ</a>
         
         <div class="spacer-bottom"></div>
     </div>
 
     <script>
+        // 言語設定のストレージキー（PWA/TWA対応）
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                btnScHc: 'Shield Chart & House Chart',
+                btnSt: 'Simple Triplicity',
+                btnOo: 'One Oracle',
+                helpLink: 'Help'
+            },
+            fr: {
+                btnScHc: 'Tableau du Bouclier et des Maisons',
+                btnSt: 'Triplicité Simple',
+                btnOo: 'Oracle Unique',
+                helpLink: 'Aide'
+            },
+            ja: {
+                btnScHc: 'シールドチャート&ハウスチャート',
+                btnSt: 'シンプル・トリプシティ',
+                btnOo: 'ワンオラクル',
+                helpLink: 'ヘルプ'
+            }
+        };
+
         let currentLanguage = 'ja';
 
+        // 言語を選択する関数
         function selectLanguage(lang) {
-            // Remove all selected states
+            // すべてのラジオボタンから選択状態を削除
             document.querySelectorAll('.radio').forEach(radio => {
                 radio.classList.remove('selected');
             });
             
-            // Add selected state to clicked option
+            // 選択されたラジオボタンに選択状態を追加
             document.getElementById(`radio-${lang}`).classList.add('selected');
+            
             currentLanguage = lang;
             
-            // Store language preference
-            localStorage.setItem('language', lang);
+            // localStorageに保存（PWA/TWA対応）
+            try {
+                localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+            } catch (e) {
+                console.error('Failed to save language preference:', e);
+            }
             
-            // Here you would typically reload with language parameter or update content
-            console.log('Language selected:', lang);
+            // htmlタグのlang属性を更新
+            document.documentElement.lang = lang;
+            
+            // UIを更新
+            updateUI(lang);
         }
 
-        // Load saved language preference
+        // UIのテキストを更新する関数
+        function updateUI(lang) {
+            const texts = translations[lang];
+            
+            document.getElementById('btnScHc').textContent = texts.btnScHc;
+            document.getElementById('btnSt').textContent = texts.btnSt;
+            document.getElementById('btnOo').textContent = texts.btnOo;
+            document.getElementById('helpLink').textContent = texts.helpLink;
+        }
+
+        // 保存された言語設定を読み込む関数
+        function loadLanguagePreference() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    return savedLanguage;
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+            
+            // デフォルトは日本語
+            return 'ja';
+        }
+
+        // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', () => {
-            const savedLanguage = localStorage.getItem('language');
-            if (savedLanguage && savedLanguage !== 'ja') {
+            const savedLanguage = loadLanguagePreference();
+            if (savedLanguage !== 'ja') {
+                selectLanguage(savedLanguage);
+            }
+        });
+
+        // 他のページから戻ってきた時の処理（bfcache対応）
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                const savedLanguage = loadLanguagePreference();
                 selectLanguage(savedLanguage);
             }
         });
