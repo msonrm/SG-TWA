@@ -725,6 +725,29 @@
             initHouseChart1();
             initHouseChart2();
             
+            // チェックボックスとラベルのタッチイベントが伝播しないようにする
+            const checkboxes = [
+                document.getElementById('showWitnessesCheck'),
+                document.getElementById('showWitnessesCheck2')
+            ];
+            
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.closest('label');
+                
+                // チェックボックスとラベルでタッチイベントの伝播を止める
+                [checkbox, label].forEach(element => {
+                    element.addEventListener('touchstart', (e) => {
+                        e.stopPropagation();
+                    });
+                    element.addEventListener('touchmove', (e) => {
+                        e.stopPropagation();
+                    });
+                    element.addEventListener('touchend', (e) => {
+                        e.stopPropagation();
+                    });
+                });
+            });
+            
             // スワイプイベントの設定
             const chartsWrapper = document.getElementById('chartsWrapper');
             
