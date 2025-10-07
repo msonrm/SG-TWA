@@ -224,10 +224,8 @@
         }
 
         async function shareChart() {
-            // 現在アクティブなタブを判定
             const activeTabIndex = currentTabIndex;
             
-            // 対応するcanvasを取得
             let canvas;
             let fileName;
             
@@ -248,14 +246,12 @@
             }
             
             try {
-                // canvasをblobに変換
                 canvas.toBlob(async (blob) => {
                     if (!blob) {
                         console.error('Failed to create blob from canvas');
                         return;
                     }
                     
-                    // Web Share APIが利用可能かチェック
                     if (navigator.share && navigator.canShare) {
                         const file = new File([blob], fileName, { type: 'image/png' });
                         const shareData = {
@@ -266,11 +262,9 @@
                         if (navigator.canShare(shareData)) {
                             await navigator.share(shareData);
                         } else {
-                            // ファイル共有がサポートされていない場合はダウンロード
                             downloadImage(blob, fileName);
                         }
                     } else {
-                        // Web Share APIが利用できない場合はダウンロード
                         downloadImage(blob, fileName);
                     }
                 }, 'image/png');
@@ -280,7 +274,6 @@
         }
         
         function downloadImage(blob, fileName) {
-            // フォールバック: 画像をダウンロード
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -365,10 +358,7 @@
             ctx.lineTo(unit * 5, rowHeights[2]);
             ctx.stroke();
 
-            ctx.beginPath();
-            ctx.moveTo(unit * 7, rowHeights[2]);
-            ctx.lineTo(unit * 7, rowHeights[3]);
-            ctx.stroke();
+            // 4段目の縦線を削除（調停者表示を取りやめたため）
         }
 
         function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
@@ -409,9 +399,8 @@
             ];
 
             const judge = addSymbols(witnesses[0], witnesses[1]);
-            const reconciler = addSymbols(mothers[0], judge);
 
-            const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge, reconciler];
+            const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge];
             let loadedCount = 0;
             const totalSymbols = allSymbols.length;
 
@@ -462,11 +451,8 @@
                 const row4Height = unit * 2;
                 const y4 = unit * 7;
                 
+                // 裁判官のみを全幅で表示（調停者は削除）
                 drawSymbol(judge, unit, y4, unit * 8, row4Height);
-                
-                const reconcilerX = unit * 7;
-                const reconcilerWidth = unit * 2;
-                drawSymbol(reconciler, reconcilerX, y4, reconcilerWidth, row4Height);
             }
         }
 
@@ -533,11 +519,8 @@
 
             function toggleWitnesses() {
                 const checkbox = document.getElementById('showWitnessesCheck');
-                // 中央部分だけをクリア
                 ctx.clearRect(unit * 3, unit * 3, unit * 4, unit * 4);
-                // 中央の枠線を再描画
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
-                // 証人と裁判官を表示/非表示
                 if (checkbox.checked) {
                     drawWitnesses(ctx, unit, 1);
                 }
@@ -611,11 +594,8 @@
 
             function toggleWitnesses() {
                 const checkbox = document.getElementById('showWitnessesCheck2');
-                // 中央部分だけをクリア
                 ctx.clearRect(unit * 3, unit * 3, unit * 4, unit * 4);
-                // 中央の枠線を再描画
                 ctx.strokeRect(unit * 3, unit * 3, unit * 4, unit * 4);
-                // 証人と裁判官を表示/非表示
                 if (checkbox.checked) {
                     drawWitnesses(ctx, unit, 2);
                 }
@@ -634,36 +614,34 @@
             let housePatterns;
             
             if (chartType === 1) {
-                // ハウスチャート1（伝統的）
                 housePatterns = [
-                    shieldChartData.mothers[0],    // 1ハウス: 1の母
-                    shieldChartData.mothers[1],    // 2ハウス: 2の母
-                    shieldChartData.mothers[2],    // 3ハウス: 3の母
-                    shieldChartData.mothers[3],    // 4ハウス: 4の母
-                    shieldChartData.daughters[0],  // 5ハウス: 1の娘
-                    shieldChartData.daughters[1],  // 6ハウス: 2の娘
-                    shieldChartData.daughters[2],  // 7ハウス: 3の娘
-                    shieldChartData.daughters[3],  // 8ハウス: 4の娘
-                    shieldChartData.nieces[0],     // 9ハウス: 1の姪
-                    shieldChartData.nieces[1],     // 10ハウス: 2の姪
-                    shieldChartData.nieces[2],     // 11ハウス: 3の姪
-                    shieldChartData.nieces[3]      // 12ハウス: 4の姪
+                    shieldChartData.mothers[0],
+                    shieldChartData.mothers[1],
+                    shieldChartData.mothers[2],
+                    shieldChartData.mothers[3],
+                    shieldChartData.daughters[0],
+                    shieldChartData.daughters[1],
+                    shieldChartData.daughters[2],
+                    shieldChartData.daughters[3],
+                    shieldChartData.nieces[0],
+                    shieldChartData.nieces[1],
+                    shieldChartData.nieces[2],
+                    shieldChartData.nieces[3]
                 ];
             } else {
-                // ハウスチャート2（黄金の夜明け団）
                 housePatterns = [
-                    shieldChartData.mothers[1],    // 1ハウス: 2の母
-                    shieldChartData.daughters[1],  // 2ハウス: 2の娘
-                    shieldChartData.nieces[1],     // 3ハウス: 2の姪
-                    shieldChartData.mothers[2],    // 4ハウス: 3の母
-                    shieldChartData.daughters[2],  // 5ハウス: 3の娘
-                    shieldChartData.nieces[2],     // 6ハウス: 3の姪
-                    shieldChartData.mothers[3],    // 7ハウス: 4の母
-                    shieldChartData.daughters[3],  // 8ハウス: 4の娘
-                    shieldChartData.nieces[3],     // 9ハウス: 4の姪
-                    shieldChartData.mothers[0],    // 10ハウス: 1の母
-                    shieldChartData.daughters[0],  // 11ハウス: 1の娘
-                    shieldChartData.nieces[0]      // 12ハウス: 1の姪
+                    shieldChartData.mothers[1],
+                    shieldChartData.daughters[1],
+                    shieldChartData.nieces[1],
+                    shieldChartData.mothers[2],
+                    shieldChartData.daughters[2],
+                    shieldChartData.nieces[2],
+                    shieldChartData.mothers[3],
+                    shieldChartData.daughters[3],
+                    shieldChartData.nieces[3],
+                    shieldChartData.mothers[0],
+                    shieldChartData.daughters[0],
+                    shieldChartData.nieces[0]
                 ];
             }
             
@@ -682,7 +660,6 @@
                 { x: unit * 1.1, y: unit * 2.25 }
             ];
 
-            // 12ハウスのシンボルを描画
             houses.forEach((house, index) => {
                 const img = new Image();
                 img.src = `${housePatterns[index]}.png`;
@@ -700,11 +677,10 @@
                 shieldChartData = calculateShieldData();
             }
 
-            // 中央の3つのシンボル（証人と裁判官）
             const witnesses = [
-                { x: unit * 5.5, y: unit * 3.35, pattern: shieldChartData.witnesses[0] },  // 右の証人
-                { x: unit * 3.5, y: unit * 3.35, pattern: shieldChartData.witnesses[1] },  // 左の証人
-                { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }          // 裁判官
+                { x: unit * 5.5, y: unit * 3.35, pattern: shieldChartData.witnesses[0] },
+                { x: unit * 3.5, y: unit * 3.35, pattern: shieldChartData.witnesses[1] },
+                { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }
             ];
 
             witnesses.forEach(witness => {
@@ -725,7 +701,6 @@
             initHouseChart1();
             initHouseChart2();
             
-            // チェックボックスとラベルのタッチイベントが伝播しないようにする
             const checkboxes = [
                 document.getElementById('showWitnessesCheck'),
                 document.getElementById('showWitnessesCheck2')
@@ -734,7 +709,6 @@
             checkboxes.forEach(checkbox => {
                 const label = checkbox.closest('label');
                 
-                // チェックボックスとラベルでタッチイベントの伝播を止める
                 [checkbox, label].forEach(element => {
                     element.addEventListener('touchstart', (e) => {
                         e.stopPropagation();
@@ -748,7 +722,6 @@
                 });
             });
             
-            // スワイプイベントの設定
             const chartsWrapper = document.getElementById('chartsWrapper');
             
             chartsWrapper.addEventListener('touchstart', (e) => {
@@ -767,7 +740,7 @@
                 isDragging = false;
                 
                 const swipeDistance = touchStartX - touchEndX;
-                const threshold = 50; // 50px以上移動した場合のみスワイプと判定
+                const threshold = 50;
                 
                 if (Math.abs(swipeDistance) > threshold) {
                     if (swipeDistance > 0 && currentTabIndex < 2) {
