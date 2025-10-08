@@ -341,44 +341,129 @@
 
     <div class="color-dialog-overlay" id="colorDialogOverlay">
         <div class="color-dialog">
-            <div class="color-dialog-title">ドット色を選択</div>
+            <div class="color-dialog-title" id="colorDialogTitle">ドット色を選択</div>
             <div class="color-option selected" data-color="#333" onclick="selectColor('#333', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label">黒</div>
+                <div class="color-label" id="colorBlack">黒</div>
             </div>
             <div class="color-option" data-color="#f44336" onclick="selectColor('#f44336', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label">赤</div>
+                <div class="color-label" id="colorRed">赤</div>
             </div>
             <div class="color-option" data-color="#ff9800" onclick="selectColor('#ff9800', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label">オレンジ</div>
+                <div class="color-label" id="colorOrange">オレンジ</div>
             </div>
             <div class="color-option" data-color="#4caf50" onclick="selectColor('#4caf50', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label">緑</div>
+                <div class="color-label" id="colorGreen">緑</div>
             </div>
             <div class="color-option" data-color="#1976d2" onclick="selectColor('#1976d2', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label">青</div>
+                <div class="color-label" id="colorBlue">青</div>
             </div>
             <div class="color-dialog-actions">
-                <button class="color-dialog-btn" onclick="applyColorChange()">OK</button>
+                <button class="color-dialog-btn" id="colorOkBtn" onclick="applyColorChange()">OK</button>
             </div>
         </div>
     </div>
 
     <script>
+        // 言語設定のストレージキー
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                mother1: 'First Mother',
+                mother2: 'Second Mother',
+                mother3: 'Third Mother',
+                mother4: 'Fourth Mother',
+                symbol1: '1st Symbol',
+                symbol2: '2nd Symbol',
+                finalTitle: '{count} symbols determined',
+                finalTextScHc: 'Will generate Shield Chart and House Chart',
+                finalTextSt: 'Will generate Simple Triplicity',
+                colorDialogTitle: 'Select dot color',
+                colorBlack: 'Black',
+                colorRed: 'Red',
+                colorOrange: 'Orange',
+                colorGreen: 'Green',
+                colorBlue: 'Blue'
+            },
+            fr: {
+                mother1: 'Première Mère',
+                mother2: 'Deuxième Mère',
+                mother3: 'Troisième Mère',
+                mother4: 'Quatrième Mère',
+                symbol1: '1er Symbole',
+                symbol2: '2ème Symbole',
+                finalTitle: '{count} symboles déterminés',
+                finalTextScHc: 'Générera le Tableau du Bouclier et des Maisons',
+                finalTextSt: 'Générera la Triplicité Simple',
+                colorDialogTitle: 'Sélectionner la couleur des points',
+                colorBlack: 'Noir',
+                colorRed: 'Rouge',
+                colorOrange: 'Orange',
+                colorGreen: 'Vert',
+                colorBlue: 'Bleu'
+            },
+            ja: {
+                mother1: '第一の母',
+                mother2: '第二の母',
+                mother3: '第三の母',
+                mother4: '第四の母',
+                symbol1: '1つ目のシンボル',
+                symbol2: '2つ目のシンボル',
+                finalTitle: '{count}つのシンボルが決定しました',
+                finalTextScHc: 'シールドチャート、ハウスチャートを生成します',
+                finalTextSt: 'シンプル・トリプリシティを生成します',
+                colorDialogTitle: 'ドット色を選択',
+                colorBlack: '黒',
+                colorRed: '赤',
+                colorOrange: 'オレンジ',
+                colorGreen: '緑',
+                colorBlue: '青'
+            }
+        };
+
+        let currentLanguage = 'fr';
+        
+        // 言語設定を読み込む
+        function loadLanguage() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    currentLanguage = savedLanguage;
+                    document.documentElement.lang = savedLanguage;
+                    updateColorDialogUI();
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+        }
+
+        // 色ダイアログのUIを更新
+        function updateColorDialogUI() {
+            const texts = translations[currentLanguage];
+            document.getElementById('colorDialogTitle').textContent = texts.colorDialogTitle;
+            document.getElementById('colorBlack').textContent = texts.colorBlack;
+            document.getElementById('colorRed').textContent = texts.colorRed;
+            document.getElementById('colorOrange').textContent = texts.colorOrange;
+            document.getElementById('colorGreen').textContent = texts.colorGreen;
+            document.getElementById('colorBlue').textContent = texts.colorBlue;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode') || 'ScHc';
         const totalSlots = mode === 'St' ? 2 : 4;
@@ -408,8 +493,6 @@
             '1112': { name: 'Cauda Draconis', meaning: '竜の尾' }
         };
 
-        const motherNames = ['第一の母', '第二の母', '第三の母', '第四の母'];
-
         function initSlots() {
             const slotsContainer = document.getElementById('symbolSlots');
             slotsContainer.innerHTML = '';
@@ -425,21 +508,17 @@
             const zoneElement = document.querySelector(`[data-zone="${zone}"]`);
             const rect = zoneElement.getBoundingClientRect();
             
-            // 境界からの最小距離（マージン）
             const margin = 12;
             
-            // ドットの位置を境界から離す
             let adjustedX = x;
             let adjustedY = y;
             
-            // 左右の境界チェック
             if (adjustedX < margin) {
                 adjustedX = margin;
             } else if (adjustedX > rect.width - margin) {
                 adjustedX = rect.width - margin;
             }
             
-            // 上下の境界チェック
             if (adjustedY < margin) {
                 adjustedY = margin;
             } else if (adjustedY > rect.height - margin) {
@@ -475,7 +554,6 @@
             const pattern = zoneDots.map(zone => zone.length % 2 === 0 ? '2' : '1').join('');
             currentSymbol = pattern;
             
-            // アニメーションで線を描画
             animatePairing(() => {
                 const symbol = geomancySymbols[pattern] || { name: 'Unknown', meaning: '不明' };
                 showDialog(pattern, symbol);
@@ -528,13 +606,15 @@
         }
 
         function showDialog(pattern, symbol) {
+            const texts = translations[currentLanguage];
             const symbolNumber = completedSymbols.length;
             let jpName;
             
             if (mode === 'St') {
-                jpName = `${symbolNumber + 1}つ目のシンボル`;
+                jpName = symbolNumber === 0 ? texts.symbol1 : texts.symbol2;
             } else {
-                jpName = motherNames[symbolNumber] || '母';
+                const motherKeys = ['mother1', 'mother2', 'mother3', 'mother4'];
+                jpName = texts[motherKeys[symbolNumber]] || 'Mother';
             }
             
             const dialogContent = document.getElementById('dialogContent');
@@ -571,19 +651,18 @@
         }
 
         function showFinalDialog() {
-            const symbolCount = totalSlots === 2 ? '2つ' : '4つ';
-            const chartType = mode === 'St' 
-                ? 'シンプル・トリプリシティを生成します' 
-                : 'シールドチャート、ハウスチャートを生成します';
+            const texts = translations[currentLanguage];
+            const symbolCount = totalSlots === 2 ? '2' : '4';
+            const titleText = texts.finalTitle.replace('{count}', symbolCount);
+            const chartType = mode === 'St' ? texts.finalTextSt : texts.finalTextScHc;
             
-            // 右から並べるために配列を逆順に
             const symbolsHtml = completedSymbols.slice().reverse().map(pattern => 
                 `<img src="${pattern}.png" alt="${pattern}">`
             ).join('');
             
             const dialogContent = document.getElementById('dialogContent');
             dialogContent.innerHTML = `
-                <div class="dialog-title">${symbolCount}のシンボルが決定しました</div>
+                <div class="dialog-title">${titleText}</div>
                 <div class="dialog-symbols-grid">
                     ${symbolsHtml}
                 </div>
@@ -635,12 +714,10 @@
         function applyColorChange() {
             currentDotColor = selectedColor;
             
-            // 既存のすべてのドットの色を変更
             document.querySelectorAll('.dot').forEach(dot => {
                 dot.style.background = currentDotColor;
             });
             
-            // パレットアイコンの色も変更
             document.querySelector('.palette-btn').style.color = currentDotColor;
             
             document.getElementById('colorDialogOverlay').classList.remove('show');
@@ -665,55 +742,46 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadLanguage();
             initSlots();
             
-            // mode=Stのときはパレットアイコンを非表示
             if (mode === 'St') {
                 document.querySelector('.palette-btn').style.display = 'none';
             }
         });
 
-        // ブラウザの戻るボタンで戻ってきた時に初期状態にリセット
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
-                // bfcache（Back-Forward Cache）から復元された場合
                 resetAllState();
             }
         });
 
         function resetAllState() {
-            // 変数をリセット
             zoneDots = [[], [], [], []];
             completedSymbols = [];
             currentSymbol = null;
             currentDotColor = '#333';
             selectedColor = '#333';
             
-            // ドットを削除
             document.querySelectorAll('.tap-zone').forEach(zone => {
                 zone.querySelectorAll('.dot').forEach(dot => dot.remove());
             });
             
-            // canvasをクリア
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
             
-            // ダイアログを閉じる
             document.getElementById('dialogOverlay').classList.remove('show');
             document.getElementById('colorDialogOverlay').classList.remove('show');
             
-            // スロットをクリア
             document.querySelectorAll('.symbol-slot').forEach(slot => {
                 slot.innerHTML = '';
             });
             
-            // OKボタンを無効化
             const okBtn = document.getElementById('okBtn');
             okBtn.classList.remove('active');
             
-            // パレットアイコンの色をリセット
             if (mode !== 'St') {
                 document.querySelector('.palette-btn').style.color = '#333';
             }
