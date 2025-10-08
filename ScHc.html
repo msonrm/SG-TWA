@@ -110,6 +110,36 @@
             height: auto;
             display: block;
         }
+
+        .chart-info {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .chart-checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .chart-checkbox {
+            width: 18px;
+            height: 18px;
+        }
+
+        .chart-checkbox-text {
+            font-size: 15px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -119,9 +149,9 @@
     </div>
 
     <div class="tabs">
-        <button class="tab active" onclick="switchTab(0)">シールドチャート</button>
-        <button class="tab" onclick="switchTab(1)">ハウスチャート1</button>
-        <button class="tab" onclick="switchTab(2)">ハウスチャート2</button>
+        <button class="tab active" id="tab0" onclick="switchTab(0)">シールドチャート</button>
+        <button class="tab" id="tab1" onclick="switchTab(1)">ハウスチャート1</button>
+        <button class="tab" id="tab2" onclick="switchTab(2)">ハウスチャート2</button>
     </div>
 
     <div class="content">
@@ -132,26 +162,22 @@
 
             <div class="chart-container" id="houseChart1">
                 <canvas id="houseCanvas1"></canvas>
-                <div style="text-align: center; margin-top: 20px;">
-                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #333;">
-                        ハウスチャート（伝統的）
-                    </div>
-                    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="showWitnessesCheck" style="width: 18px; height: 18px;">
-                        <span style="font-size: 15px; color: #333;">左右の証人と裁判官を表示する</span>
+                <div class="chart-info">
+                    <div class="chart-title" id="houseTitle1">ハウスチャート（伝統的）</div>
+                    <label class="chart-checkbox-label">
+                        <input type="checkbox" id="showWitnessesCheck" class="chart-checkbox">
+                        <span class="chart-checkbox-text" id="witnessLabel1">左右の証人と裁判官を表示する</span>
                     </label>
                 </div>
             </div>
 
             <div class="chart-container" id="houseChart2">
                 <canvas id="houseCanvas2"></canvas>
-                <div style="text-align: center; margin-top: 20px;">
-                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #333;">
-                        ハウスチャート（黄金の夜明け団）
-                    </div>
-                    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" id="showWitnessesCheck2" style="width: 18px; height: 18px;">
-                        <span style="font-size: 15px; color: #333;">左右の証人と裁判官を表示する</span>
+                <div class="chart-info">
+                    <div class="chart-title" id="houseTitle2">ハウスチャート（黄金の夜明け団）</div>
+                    <label class="chart-checkbox-label">
+                        <input type="checkbox" id="showWitnessesCheck2" class="chart-checkbox">
+                        <span class="chart-checkbox-text" id="witnessLabel2">左右の証人と裁判官を表示する</span>
                     </label>
                 </div>
             </div>
@@ -159,6 +185,70 @@
     </div>
 
     <script>
+        // 言語設定のストレージキー
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                pageTitle: 'Shield & House Chart',
+                tab0: 'Shield Chart',
+                tab1: 'House Chart 1',
+                tab2: 'House Chart 2',
+                houseTitle1: 'House Chart (Traditional)',
+                houseTitle2: 'House Chart (Golden Dawn)',
+                witnessLabel: 'Show Witnesses and Judge'
+            },
+            fr: {
+                pageTitle: 'Tableau du Bouclier et des Maisons',
+                tab0: 'Tableau du Bouclier',
+                tab1: 'Tableau des Maisons 1',
+                tab2: 'Tableau des Maisons 2',
+                houseTitle1: 'Tableau des Maisons (Traditionnel)',
+                houseTitle2: 'Tableau des Maisons (Golden Dawn)',
+                witnessLabel: 'Afficher les Témoins et le Juge'
+            },
+            ja: {
+                pageTitle: 'シールド&ハウスチャート',
+                tab0: 'シールドチャート',
+                tab1: 'ハウスチャート1',
+                tab2: 'ハウスチャート2',
+                houseTitle1: 'ハウスチャート（伝統的）',
+                houseTitle2: 'ハウスチャート（黄金の夜明け団）',
+                witnessLabel: '左右の証人と裁判官を表示する'
+            }
+        };
+
+        let currentLanguage = 'fr';
+        
+        // 言語設定を読み込む
+        function loadLanguage() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    currentLanguage = savedLanguage;
+                    document.documentElement.lang = savedLanguage;
+                    updateUI();
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+        }
+
+        // UIのテキストを更新
+        function updateUI() {
+            const texts = translations[currentLanguage];
+            
+            document.title = `${texts.pageTitle} - Simple Geomancy`;
+            document.getElementById('tab0').textContent = texts.tab0;
+            document.getElementById('tab1').textContent = texts.tab1;
+            document.getElementById('tab2').textContent = texts.tab2;
+            document.getElementById('houseTitle1').textContent = texts.houseTitle1;
+            document.getElementById('houseTitle2').textContent = texts.houseTitle2;
+            document.getElementById('witnessLabel1').textContent = texts.witnessLabel;
+            document.getElementById('witnessLabel2').textContent = texts.witnessLabel;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const symbolsParam = urlParams.get('symbols');
         const mothers = symbolsParam ? symbolsParam.split(',') : ['2211', '1122', '2121', '1212'];
@@ -167,7 +257,6 @@
         let canvas, ctx;
         let currentTabIndex = 0;
 
-        // スワイプ用の変数
         let touchStartX = 0;
         let touchEndX = 0;
         let isDragging = false;
@@ -357,8 +446,6 @@
             ctx.moveTo(unit * 5, rowHeights[1]);
             ctx.lineTo(unit * 5, rowHeights[2]);
             ctx.stroke();
-
-            // 4段目の縦線を削除（調停者表示を取りやめたため）
         }
 
         function drawSymbol(pattern, cellX, cellY, cellWidth, cellHeight) {
@@ -451,7 +538,6 @@
                 const row4Height = unit * 2;
                 const y4 = unit * 7;
                 
-                // 裁判官のみを全幅で表示（調停者は削除）
                 drawSymbol(judge, unit, y4, unit * 8, row4Height);
             }
         }
@@ -696,6 +782,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadLanguage();
             initCanvas();
             drawShieldChart();
             initHouseChart1();
@@ -753,6 +840,12 @@
                 touchStartX = 0;
                 touchEndX = 0;
             });
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                loadLanguage();
+            }
         });
     </script>
 </body>
