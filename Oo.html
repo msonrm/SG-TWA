@@ -60,9 +60,14 @@
 
         .tap-zone {
             flex: 1;
-            background: #ffffff;
-            border-bottom: 2px solid #e0e0e0;
+            background: #f0f0f0;
+            border-bottom: 2px solid #c0c0c0;
             position: relative;
+            transition: background 0.3s ease;
+        }
+        
+        .tap-zone.active {
+            background: #ffffff;
         }
 
         .tap-zone:last-child {
@@ -88,7 +93,7 @@
         }
 
         .bottom-button-area {
-            background: #d8d8d8;
+            background: #e0e0e0;
             padding: 20px;
             display: flex;
             justify-content: center;
@@ -97,7 +102,7 @@
 
         .generate-button {
             font-family: 'Material Symbols Outlined';
-            background: #888;
+            background: #9a9a9a;
             color: #333;
             border: none;
             padding: 20px 60px;
@@ -111,16 +116,16 @@
         }
 
         .generate-button.holding {
-            background: #9a9a9a;
+            background: #aaa;
         }
 
         .generate-button:active {
-            background: #666;
+            background: #777;
             transform: scale(0.95);
         }
 
         .generate-button.disabled {
-            background: #ccc;
+            background: #d0d0d0;
             cursor: not-allowed;
         }
 
@@ -294,6 +299,11 @@
             const zoneElement = document.querySelector(`[data-zone="${zoneIndex}"]`);
             const rect = zoneElement.getBoundingClientRect();
             
+            // Activate zone background on first dot
+            if (zoneDots[zoneIndex].length === 0) {
+                zoneElement.classList.add('active');
+            }
+            
             const margin = 20;
             const x = margin + Math.random() * (rect.width - margin * 2);
             const y = margin + Math.random() * (rect.height - margin * 2);
@@ -360,15 +370,6 @@
             
             isHolding = true;
             btn.classList.add('holding');
-            
-            // Trigger vibration
-            try {
-                if (navigator.vibrate) {
-                    navigator.vibrate(50);
-                }
-            } catch (e) {
-                console.log('Vibration not supported or blocked');
-            }
             
             holdInterval = setInterval(() => {
                 if (isHolding) {
@@ -442,6 +443,11 @@
                 canvas.width = canvas.width;
             });
             
+            // Reset zone backgrounds
+            document.querySelectorAll('.tap-zone').forEach(zone => {
+                zone.classList.remove('active');
+            });
+            
             document.getElementById('dialogOverlay').classList.remove('show');
             
             const btn = document.getElementById('generateBtn');
@@ -470,15 +476,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadLanguage();
-            
-            // Prepare vibration API (some browsers require early user interaction)
-            // This helps ensure vibration works on first button press
-            document.body.addEventListener('touchstart', function enableVibration() {
-                if (navigator.vibrate) {
-                    navigator.vibrate(0); // Silent vibration to activate API
-                }
-                document.body.removeEventListener('touchstart', enableVibration);
-            }, { once: true, passive: true });
         });
 
         window.addEventListener('pageshow', (event) => {
