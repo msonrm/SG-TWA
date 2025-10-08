@@ -354,8 +354,11 @@
         function startHolding() {
             if (completedZones >= 4) return;
             
-            isHolding = true;
             const btn = document.getElementById('generateBtn');
+            // Check if button is disabled (during line drawing)
+            if (btn.classList.contains('disabled')) return;
+            
+            isHolding = true;
             btn.classList.add('holding');
             
             if (navigator.vibrate) {
