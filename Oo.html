@@ -212,6 +212,37 @@
     </div>
 
     <script>
+        // 言語設定のストレージキー
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                helpText: 'Press and hold the button below to randomly place dots in the first area. Release when you feel ready to confirm. Repeat this 4 times to generate one symbol.',
+            },
+            fr: {
+                helpText: 'Appuyez longuement sur le bouton ci-dessous pour placer aléatoirement des points dans la première zone. Relâchez quand vous vous sentez prêt à confirmer. Répétez cela 4 fois pour générer un symbole.',
+            },
+            ja: {
+                helpText: '下のボタンを長押しすると、1番目の枠にランダムにドットが打たれていきます。好きなタイミングで手を離すと確定し、これを4回繰り返すと、シンボルが1つ生成されます。',
+            }
+        };
+
+        let currentLanguage = 'fr';
+        
+        // 言語設定を読み込む
+        function loadLanguage() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    currentLanguage = savedLanguage;
+                    document.documentElement.lang = savedLanguage;
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+        }
+
         let zoneDots = [[], [], [], []];
         let currentZone = 0;
         let isHolding = false;
@@ -242,10 +273,11 @@
         }
 
         function showHelp() {
+            const texts = translations[currentLanguage];
             const dialogContent = document.getElementById('dialogContent');
             dialogContent.innerHTML = `
                 <div class="help-text">
-                    下のボタンを長押しすると、1番目の枠にランダムにドットが打たれていきます。好きなタイミングで手を離すと確定し、これを4回繰り返すと、シンボルが1つ生成されます。
+                    ${texts.helpText}
                 </div>
                 <div style="text-align: right;">
                     <button class="dialog-btn" onclick="closeHelp()">OK</button>
@@ -317,9 +349,8 @@
             const btn = document.getElementById('generateBtn');
             btn.classList.add('holding');
             
-            // 振動フィードバック（対応デバイスのみ）
             if (navigator.vibrate) {
-                navigator.vibrate(50); // 50ミリ秒の短い振動
+                navigator.vibrate(50);
             }
             
             holdInterval = setInterval(() => {
@@ -339,23 +370,19 @@
             btn.classList.remove('holding');
             
             if (zoneDots[currentZone].length > 0) {
-                // 指を離した時点でボタンを無効化
                 btn.classList.add('disabled');
                 
                 const zoneToComplete = currentZone;
                 
                 setTimeout(() => {
                     drawPairingLines(zoneToComplete, () => {
-                        // 線の描画が完了したら処理を続ける
                         setTimeout(() => {
                             completedZones++;
                             currentZone++;
                             
                             if (completedZones >= 4) {
-                                // 4つ目が完了したらボタンは無効のまま
                                 setTimeout(showResult, 500);
                             } else {
-                                // まだゾーンが残っている場合はボタンを再び有効化
                                 btn.classList.remove('disabled');
                             }
                         }, 200);
@@ -386,25 +413,20 @@
         }
 
         function resetScreen() {
-            // 変数をリセット
             zoneDots = [[], [], [], []];
             currentZone = 0;
             completedZones = 0;
             isHolding = false;
             
-            // すべてのドットを削除
             document.querySelectorAll('.dot').forEach(dot => dot.remove());
             
-            // すべてのcanvasをクリア
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             });
             
-            // ダイアログを閉じる
             document.getElementById('dialogOverlay').classList.remove('show');
             
-            // ボタンを再び有効化
             const btn = document.getElementById('generateBtn');
             btn.classList.remove('disabled');
             btn.classList.remove('holding');
@@ -429,10 +451,13 @@
             stopHolding();
         });
 
-        // ブラウザの戻るボタンで戻ってきた時に初期状態にリセット
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLanguage();
+        });
+
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
-                // bfcache（Back-Forward Cache）から復元された場合
+                loadLanguage();
                 resetScreen();
             }
         });
