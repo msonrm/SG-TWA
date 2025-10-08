@@ -76,45 +76,130 @@
 
     <div class="content">
         <div class="section">
-            <div class="section-title">ジオマンシーとは</div>
-            <div class="section-text">
+            <div class="section-title" id="title1">ジオマンシーとは</div>
+            <div class="section-text" id="text1">
                 古代から伝わる土占い。16のシンボルを使います。シンプルでありながら、具体的で明快なメッセージを受け取ることができます。
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">このアプリについて</div>
-            <div class="section-text">
+            <div class="section-title" id="title2">このアプリについて</div>
+            <div class="section-text" id="text2">
                 このアプリでは、ドットを打つという伝統的なやり方で、簡単にジオマンシーで占うことができます。チャート表示画面の右上にあるシェアボタンから、結果を画像としてSNSにシェアしたり、保存したりすることができます。なお、各シンボルやチャートの意味・解釈については、このアプリには含まれていません。それぞれのシンボルが持つメッセージを、ご自身で調べながら読み解いてください。
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">シールドチャート・ハウスチャート</div>
-            <div class="section-text">
+            <div class="section-title" id="title3">シールドチャート・ハウスチャート</div>
+            <div class="section-text" id="text3">
                 伝統的な占い方です。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。4つすべてにドットが打たれたら右上の「OK」ボタンを押してください。ドットの個数（偶数・奇数）に応じてジオマンシーのシンボルが決まります。これを4回繰り返すと4つのシンボルが決まり、シールドチャートとハウスチャートが表示されます。
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">シンプル・トリプリシティ</div>
-            <div class="section-text">
+            <div class="section-title" id="title4">シンプル・トリプリシティ</div>
+            <div class="section-text" id="text4">
                 シールドチャート・ハウスチャートと同じ方法でドットを打ち、シンボルを2つ生成します。この2つのシンボルから、よりシンプルに占うことができます。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。これを2回繰り返すと、シンプル・トリプリシティのチャートが表示されます。
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">ワンオラクル</div>
-            <div class="section-text">
+            <div class="section-title" id="title5">ワンオラクル</div>
+            <div class="section-text" id="text5">
                 ワンオラクルは最も基本的な占い方で、ただ一つのシンボルから答えを導き出します。画面下のボタンを4回長押しするとすぐにシンボルが1つ決まります。シンプルで直感的な答えを求めるときに最適です。
             </div>
         </div>
     </div>
 
     <script>
+        // 言語設定のストレージキー
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                title1: 'What is Geomancy',
+                text1: 'An ancient form of earth divination using 16 symbols. While simple, it delivers concrete and clear messages.',
+                title2: 'About This App',
+                text2: 'This app allows you to easily practice geomancy using the traditional method of marking dots. Use the share button in the top right of the chart display screen to share or save your results as an image on social media. Note that interpretations and meanings of the symbols and charts are not included in this app. Please research and interpret the messages each symbol holds for yourself.',
+                title3: 'Shield Chart & House Chart',
+                text3: 'This is the traditional method of divination. Focus strongly on your question while tapping from right to left across the four areas, marking dots freely. Once all four areas have dots, press the "OK" button in the top right. Geomancy symbols are determined based on whether the number of dots is odd or even. Repeat this process four times to generate four symbols, which will then display the Shield Chart and House Chart.',
+                title4: 'Simple Triplicity',
+                text4: 'Using the same method as Shield Chart and House Chart, mark dots to generate two symbols. These two symbols provide a simpler form of divination. Focus strongly on your question while tapping from right to left across the four areas, marking dots freely. Repeat this twice to display the Simple Triplicity chart.',
+                title5: 'One Oracle',
+                text5: 'One Oracle is the most basic form of divination, deriving an answer from a single symbol. Press and hold the button at the bottom of the screen four times to quickly determine one symbol. Perfect for seeking simple and intuitive answers.'
+            },
+            fr: {
+                title1: 'Qu\'est-ce que la Géomancie',
+                text1: 'Une forme ancienne de divination terrestre utilisant 16 symboles. Bien que simple, elle délivre des messages concrets et clairs.',
+                title2: 'À propos de cette application',
+                text2: 'Cette application vous permet de pratiquer facilement la géomancie en utilisant la méthode traditionnelle de marquage de points. Utilisez le bouton de partage en haut à droite de l\'écran d\'affichage du tableau pour partager ou enregistrer vos résultats sous forme d\'image sur les réseaux sociaux. Notez que les interprétations et significations des symboles et tableaux ne sont pas incluses dans cette application. Veuillez rechercher et interpréter par vous-même les messages que chaque symbole détient.',
+                title3: 'Tableau du Bouclier et des Maisons',
+                text3: 'C\'est la méthode traditionnelle de divination. Concentrez-vous fortement sur votre question tout en tapotant de droite à gauche sur les quatre zones, en marquant librement des points. Une fois que les quatre zones ont des points, appuyez sur le bouton "OK" en haut à droite. Les symboles géomantiques sont déterminés selon que le nombre de points est pair ou impair. Répétez ce processus quatre fois pour générer quatre symboles, qui afficheront ensuite le Tableau du Bouclier et des Maisons.',
+                title4: 'Triplicité Simple',
+                text4: 'En utilisant la même méthode que le Tableau du Bouclier et des Maisons, marquez des points pour générer deux symboles. Ces deux symboles fournissent une forme plus simple de divination. Concentrez-vous fortement sur votre question tout en tapotant de droite à gauche sur les quatre zones, en marquant librement des points. Répétez cela deux fois pour afficher le tableau de Triplicité Simple.',
+                title5: 'Oracle Unique',
+                text5: 'L\'Oracle Unique est la forme la plus basique de divination, tirant une réponse d\'un seul symbole. Appuyez longuement sur le bouton en bas de l\'écran quatre fois pour déterminer rapidement un symbole. Parfait pour rechercher des réponses simples et intuitives.'
+            },
+            ja: {
+                title1: 'ジオマンシーとは',
+                text1: '古代から伝わる土占い。16のシンボルを使います。シンプルでありながら、具体的で明快なメッセージを受け取ることができます。',
+                title2: 'このアプリについて',
+                text2: 'このアプリでは、ドットを打つという伝統的なやり方で、簡単にジオマンシーで占うことができます。チャート表示画面の右上にあるシェアボタンから、結果を画像としてSNSにシェアしたり、保存したりすることができます。なお、各シンボルやチャートの意味・解釈については、このアプリには含まれていません。それぞれのシンボルが持つメッセージを、ご自身で調べながら読み解いてください。',
+                title3: 'シールドチャート・ハウスチャート',
+                text3: '伝統的な占い方です。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。4つすべてにドットが打たれたら右上の「OK」ボタンを押してください。ドットの個数（偶数・奇数）に応じてジオマンシーのシンボルが決まります。これを4回繰り返すと4つのシンボルが決まり、シールドチャートとハウスチャートが表示されます。',
+                title4: 'シンプル・トリプリシティ',
+                text4: 'シールドチャート・ハウスチャートと同じ方法でドットを打ち、シンボルを2つ生成します。この2つのシンボルから、よりシンプルに占うことができます。どんなことを占いたいのかを強く心に思いながら、4つの領域を右から左に向かってタップしていき、思いのままにドットを打ってください。これを2回繰り返すと、シンプル・トリプリシティのチャートが表示されます。',
+                title5: 'ワンオラクル',
+                text5: 'ワンオラクルは最も基本的な占い方で、ただ一つのシンボルから答えを導き出します。画面下のボタンを4回長押しするとすぐにシンボルが1つ決まります。シンプルで直感的な答えを求めるときに最適です。'
+            }
+        };
+
+        let currentLanguage = 'fr';
+        
+        // 言語設定を読み込む
+        function loadLanguage() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    currentLanguage = savedLanguage;
+                    document.documentElement.lang = savedLanguage;
+                    updateUI();
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+        }
+
+        // UIのテキストを更新
+        function updateUI() {
+            const texts = translations[currentLanguage];
+            
+            document.getElementById('title1').textContent = texts.title1;
+            document.getElementById('text1').textContent = texts.text1;
+            document.getElementById('title2').textContent = texts.title2;
+            document.getElementById('text2').textContent = texts.text2;
+            document.getElementById('title3').textContent = texts.title3;
+            document.getElementById('text3').textContent = texts.text3;
+            document.getElementById('title4').textContent = texts.title4;
+            document.getElementById('text4').textContent = texts.text4;
+            document.getElementById('title5').textContent = texts.title5;
+            document.getElementById('text5').textContent = texts.text5;
+        }
+
         function goBack() {
             window.location.href = 'index.html';
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLanguage();
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                loadLanguage();
+            }
+        });
     </script>
 </body>
 </html>
