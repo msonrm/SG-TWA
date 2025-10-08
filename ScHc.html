@@ -290,10 +290,12 @@
         function getCanvasSize() {
             const screenWidth = window.innerWidth;
             const unit = screenWidth / 10;
+            const dpr = window.devicePixelRatio || 1;
             return {
                 canvasWidth: unit * 10,
                 canvasHeight: unit * 10,
-                unit: unit
+                unit: unit,
+                dpr: dpr
             };
         }
 
@@ -398,9 +400,18 @@
             canvas = document.getElementById('shieldCanvas');
             ctx = canvas.getContext('2d');
             
-            const { canvasWidth, canvasHeight } = getCanvasSize();
-            canvas.width = canvasWidth;
-            canvas.height = canvasHeight;
+            const { canvasWidth, canvasHeight, dpr } = getCanvasSize();
+            
+            // Set canvas size considering device pixel ratio for sharp rendering
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
+            
+            // Set CSS size
+            canvas.style.width = canvasWidth + 'px';
+            canvas.style.height = canvasHeight + 'px';
+            
+            // Scale context to match device pixel ratio
+            ctx.scale(dpr, dpr);
         }
 
         function drawGrid() {
@@ -546,9 +557,18 @@
             const canvas = document.getElementById('houseCanvas1');
             const ctx = canvas.getContext('2d');
             
-            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
-            canvas.width = canvasWidth;
-            canvas.height = canvasHeight;
+            const { canvasWidth, canvasHeight, unit, dpr } = getCanvasSize();
+            
+            // Set canvas size considering device pixel ratio for sharp rendering
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
+            
+            // Set CSS size
+            canvas.style.width = canvasWidth + 'px';
+            canvas.style.height = canvasHeight + 'px';
+            
+            // Scale context to match device pixel ratio
+            ctx.scale(dpr, dpr);
 
             function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -621,9 +641,18 @@
             const canvas = document.getElementById('houseCanvas2');
             const ctx = canvas.getContext('2d');
             
-            const { canvasWidth, canvasHeight, unit } = getCanvasSize();
-            canvas.width = canvasWidth;
-            canvas.height = canvasHeight;
+            const { canvasWidth, canvasHeight, unit, dpr } = getCanvasSize();
+            
+            // Set canvas size considering device pixel ratio for sharp rendering
+            canvas.width = canvasWidth * dpr;
+            canvas.height = canvasHeight * dpr;
+            
+            // Set CSS size
+            canvas.style.width = canvasWidth + 'px';
+            canvas.style.height = canvasHeight + 'px';
+            
+            // Scale context to match device pixel ratio
+            ctx.scale(dpr, dpr);
 
             function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
