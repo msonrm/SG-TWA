@@ -310,8 +310,17 @@
         function drawPairingLines(zoneIndex, callback) {
             const canvas = document.querySelector(`[data-canvas="${zoneIndex}"]`);
             const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            
+            const displayWidth = canvas.offsetWidth;
+            const displayHeight = canvas.offsetHeight;
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Set canvas size considering device pixel ratio for sharp rendering
+            canvas.width = displayWidth * dpr;
+            canvas.height = displayHeight * dpr;
+            
+            // Scale context to match device pixel ratio
+            ctx.scale(dpr, dpr);
             
             const dots = zoneDots[zoneIndex];
             const totalPairs = Math.floor(dots.length / 2);
@@ -327,8 +336,8 @@
                 const dot1 = dots[pairIndex * 2];
                 const dot2 = dots[pairIndex * 2 + 1];
                 
-                ctx.strokeStyle = '#666';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
                 ctx.lineCap = 'round';
                 ctx.beginPath();
                 ctx.moveTo(dot1.x, dot1.y);
@@ -421,8 +430,8 @@
             document.querySelectorAll('.dot').forEach(dot => dot.remove());
             
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Reset canvas (this also clears it and resets context)
+                canvas.width = canvas.width;
             });
             
             document.getElementById('dialogOverlay').classList.remove('show');
