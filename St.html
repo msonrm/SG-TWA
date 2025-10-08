@@ -86,6 +86,44 @@
     </div>
 
     <script>
+        // 言語設定のストレージキー
+        const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        
+        // 言語ごとのテキスト定義
+        const translations = {
+            en: {
+                title: 'Simple Triplicity'
+            },
+            fr: {
+                title: 'Triplicité Simple'
+            },
+            ja: {
+                title: 'シンプル・トリプリシティ'
+            }
+        };
+
+        let currentLanguage = 'fr';
+        
+        // 言語設定を読み込む
+        function loadLanguage() {
+            try {
+                const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+                if (savedLanguage && translations[savedLanguage]) {
+                    currentLanguage = savedLanguage;
+                    document.documentElement.lang = savedLanguage;
+                    updateTitle();
+                }
+            } catch (e) {
+                console.error('Failed to load language preference:', e);
+            }
+        }
+
+        // タイトルを更新
+        function updateTitle() {
+            const texts = translations[currentLanguage];
+            document.title = `${texts.title} - Simple Geomancy`;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const symbolsParam = urlParams.get('symbols');
         const symbols = symbolsParam ? symbolsParam.split(',') : ['2211', '1122'];
@@ -249,8 +287,15 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadLanguage();
             initCanvas();
             drawTriplicity();
+        });
+
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                loadLanguage();
+            }
         });
     </script>
 </body>
