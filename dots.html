@@ -562,6 +562,7 @@
 
         function animatePairing(callback) {
             let completedZones = 0;
+            const dpr = window.devicePixelRatio || 1;
             
             zoneDots.forEach((dots, zoneIndex) => {
                 if (dots.length === 0) {
@@ -571,8 +572,16 @@
                 
                 const canvas = document.querySelector(`[data-canvas="${zoneIndex}"]`);
                 const ctx = canvas.getContext('2d');
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
+                
+                const displayWidth = canvas.offsetWidth;
+                const displayHeight = canvas.offsetHeight;
+                
+                // Set canvas size considering device pixel ratio for sharp rendering
+                canvas.width = displayWidth * dpr;
+                canvas.height = displayHeight * dpr;
+                
+                // Scale context to match device pixel ratio
+                ctx.scale(dpr, dpr);
                 
                 let pairIndex = 0;
                 const totalPairs = Math.floor(dots.length / 2);
@@ -589,8 +598,8 @@
                     const dot1 = dots[pairIndex * 2];
                     const dot2 = dots[pairIndex * 2 + 1];
                     
-                    ctx.strokeStyle = currentDotColor;
-                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
                     ctx.moveTo(dot1.x, dot1.y);
@@ -689,8 +698,8 @@
                 zone.querySelectorAll('.dot').forEach(dot => dot.remove());
             });
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Reset canvas (this also clears it and resets context)
+                canvas.width = canvas.width;
             });
             checkOkButton();
         }
@@ -768,8 +777,8 @@
             });
             
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Reset canvas (this also clears it and resets context)
+                canvas.width = canvas.width;
             });
             
             document.getElementById('dialogOverlay').classList.remove('show');
