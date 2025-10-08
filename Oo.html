@@ -361,8 +361,13 @@
             isHolding = true;
             btn.classList.add('holding');
             
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
+            // Trigger vibration
+            try {
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            } catch (e) {
+                console.log('Vibration not supported or blocked');
             }
             
             holdInterval = setInterval(() => {
@@ -465,6 +470,15 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadLanguage();
+            
+            // Prepare vibration API (some browsers require early user interaction)
+            // This helps ensure vibration works on first button press
+            document.body.addEventListener('touchstart', function enableVibration() {
+                if (navigator.vibrate) {
+                    navigator.vibrate(0); // Silent vibration to activate API
+                }
+                document.body.removeEventListener('touchstart', enableVibration);
+            }, { once: true, passive: true });
         });
 
         window.addEventListener('pageshow', (event) => {
