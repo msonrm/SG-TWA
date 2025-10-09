@@ -2,8 +2,8 @@
   "name": "Simple Geomancy",
   "short_name": "Geomancy",
   "description": "Traditional geomancy divination app for practicing ancient fortune-telling methods",
-  "start_url": "/SG-TWA/index.html",
-  "scope": "/SG-TWA/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3f51b5",
@@ -12,13 +12,13 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/SG-TWA/Icon_192.png",
+      "src": "./Icon_192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/SG-TWA/Icon_512.png",
+      "src": "./Icon_512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
