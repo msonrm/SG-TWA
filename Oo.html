@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>One Oracle - Simple Geomancy</title>
+    <title>Single Figure Reading - Simple Geomancy</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
@@ -223,12 +223,15 @@
         // 言語ごとのテキスト定義
         const translations = {
             en: {
-                helpText: 'Press and hold the button to randomly place dots in each area. Release when ready to confirm. Repeat this 4 times to generate your symbol.',
+                title: 'Single Figure Reading',
+                helpText: 'Press and hold the button to randomly place dots in each area. Release when ready to confirm. Repeat this 4 times to generate your figure.',
             },
             fr: {
-                helpText: 'Appuyez et maintenez le bouton pour placer aléatoirement des points dans chaque zone. Relâchez quand vous êtes prêt à confirmer. Répétez 4 fois pour générer votre symbole.',
+                title: 'Lecture à Une Figure',
+                helpText: 'Appuyez et maintenez le bouton pour placer aléatoirement des points dans chaque zone. Relâchez quand vous êtes prêt à confirmer. Répétez 4 fois pour générer votre figure.',
             },
             ja: {
+                title: 'ワンオラクル',
                 helpText: '下のボタンを長押しすると、1番目の枠にランダムにドットが打たれていきます。好きなタイミングで手を離すと確定し、これを4回繰り返すと、シンボルが1つ生成されます。',
             }
         };
@@ -242,10 +245,17 @@
                 if (savedLanguage && translations[savedLanguage]) {
                     currentLanguage = savedLanguage;
                     document.documentElement.lang = savedLanguage;
+                    updateTitle();
                 }
             } catch (e) {
                 console.error('Failed to load language preference:', e);
             }
+        }
+
+        // タイトルを更新
+        function updateTitle() {
+            const texts = translations[currentLanguage];
+            document.title = `${texts.title} - Simple Geomancy`;
         }
 
         let zoneDots = [[], [], [], []];
