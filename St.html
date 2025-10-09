@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simple Triplicity - Simple Geomancy</title>
+    <title>Simple Three-Figure Reading - Simple Geomancy</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         * {
@@ -91,10 +91,10 @@
         // 言語ごとのテキスト定義
         const translations = {
             en: {
-                title: 'Simple Triplicity'
+                title: 'Simple Three-Figure Reading'
             },
             fr: {
-                title: 'Triplicité Simple'
+                title: 'Lecture à Trois Figures'
             },
             ja: {
                 title: 'シンプル・トリプリシティ'
@@ -147,7 +147,7 @@
 
         async function shareChart() {
             const canvas = document.getElementById('triplicityCanvas');
-            const fileName = 'simple-triplicity.png';
+            const fileName = 'simple-three-figure-reading.png';
             
             if (!canvas) {
                 console.error('Canvas not found');
@@ -165,7 +165,7 @@
                         const file = new File([blob], fileName, { type: 'image/png' });
                         const shareData = {
                             files: [file],
-                            title: 'Simple Geomancy - Simple Triplicity'
+                            title: 'Simple Geomancy - Simple Three-Figure Reading'
                         };
                         
                         if (navigator.canShare(shareData)) {
