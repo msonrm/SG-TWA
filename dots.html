@@ -59,7 +59,7 @@
         .ok-btn {
             background: #c8c8c8;
             border: none;
-            padding: 8px 24px;
+            padding: 8px 36px;
             border-radius: 6px;
             font-size: 16px;
             color: #999;
@@ -71,6 +71,16 @@
             background: #a8a8a8;
             color: #000;
             cursor: pointer;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
         }
 
         .tap-area {
