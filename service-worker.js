@@ -45,36 +45,30 @@ self.addEventListener('install', event => {
   );
 });
 
-// キャッシュから応答を返す
+// Stale-While-Revalidate戦略: キャッシュを即座に返しつつバックグラウンドで更新
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // キャッシュにあればそれを返す
-        if (response) {
-          return response;
-        }
-
-        // キャッシュになければネットワークから取得
-        return fetch(event.request).then(
-          response => {
-            // 有効なレスポンスかチェック
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(event.request).then(cachedResponse => {
+        // バックグラウンドでネットワークから取得してキャッシュを更新
+        const fetchPromise = fetch(event.request)
+          .then(networkResponse => {
+            // 有効なレスポンスであればキャッシュに保存
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+              cache.put(event.request, networkResponse.clone());
             }
+            return networkResponse;
+          })
+          .catch(error => {
+            // ネットワークエラーは無視（キャッシュを使用）
+            console.log('Fetch failed; returning cached response instead.', error);
+            return cachedResponse;
+          });
 
-            // レスポンスのクローンをキャッシュに保存
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
+        // キャッシュがあればそれを即座に返し、なければネットワークを待つ
+        return cachedResponse || fetchPromise;
+      });
+    })
   );
 });
 
