@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simple-geomancy-v2';
+const CACHE_NAME = 'simple-geomancy-v3';
 const urlsToCache = [
   '/SG-TWA/',
   '/SG-TWA/index.html',
@@ -31,6 +31,9 @@ const urlsToCache = [
 
 // インストール時にキャッシュを作成
 self.addEventListener('install', event => {
+  // 新しいService Workerを即座にアクティブにする
+  self.skipWaiting();
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -85,6 +88,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // 全てのクライアントを即座に制御下に置く
+      return self.clients.claim();
     })
   );
 });
