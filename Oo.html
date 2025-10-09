@@ -269,22 +269,17 @@
         function addRandomDot(zoneIndex) {
             const zoneElement = document.querySelector(`[data-zone="${zoneIndex}"]`);
             const rect = zoneElement.getBoundingClientRect();
-            
-            // Activate zone background on first dot
-            if (zoneDots[zoneIndex].length === 0) {
-                zoneElement.classList.add('active');
-            }
-            
+
             const margin = 20;
             const x = margin + Math.random() * (rect.width - margin * 2);
             const y = margin + Math.random() * (rect.height - margin * 2);
-            
+
             const dot = document.createElement('div');
             dot.className = 'dot';
             dot.style.left = x + 'px';
             dot.style.top = y + 'px';
             zoneElement.appendChild(dot);
-            
+
             zoneDots[zoneIndex].push({ x, y });
         }
 
@@ -351,27 +346,32 @@
 
         function stopHolding() {
             if (!isHolding) return;
-            
+
             isHolding = false;
             clearInterval(holdInterval);
-            
+
             const btn = document.getElementById('generateBtn');
             btn.classList.remove('holding');
-            
+
             if (zoneDots[currentZone].length > 0) {
                 btn.classList.add('disabled');
-                
+
                 const zoneToComplete = currentZone;
-                
+
                 setTimeout(() => {
                     drawPairingLines(zoneToComplete, () => {
                         setTimeout(() => {
                             completedZones++;
                             currentZone++;
-                            
+
                             if (completedZones >= 4) {
                                 setTimeout(showResult, 500);
                             } else {
+                                // Activate the next zone after completing the current one
+                                const nextZoneElement = document.querySelector(`[data-zone="${currentZone}"]`);
+                                if (nextZoneElement) {
+                                    nextZoneElement.classList.add('active');
+                                }
                                 btn.classList.remove('disabled');
                             }
                         }, 200);
@@ -406,21 +406,27 @@
             currentZone = 0;
             completedZones = 0;
             isHolding = false;
-            
+
             document.querySelectorAll('.dot').forEach(dot => dot.remove());
-            
+
             document.querySelectorAll('.zone-canvas').forEach(canvas => {
                 // Reset canvas (this also clears it and resets context)
                 canvas.width = canvas.width;
             });
-            
+
             // Reset zone backgrounds
             document.querySelectorAll('.tap-zone').forEach(zone => {
                 zone.classList.remove('active');
             });
-            
+
+            // Reactivate first zone
+            const firstZone = document.querySelector('[data-zone="0"]');
+            if (firstZone) {
+                firstZone.classList.add('active');
+            }
+
             document.getElementById('dialogOverlay').classList.remove('show');
-            
+
             const btn = document.getElementById('generateBtn');
             btn.classList.remove('disabled');
             btn.classList.remove('holding');
@@ -447,12 +453,23 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadLanguage();
+            // Initialize first zone as active
+            const firstZone = document.querySelector('[data-zone="0"]');
+            if (firstZone) {
+                firstZone.classList.add('active');
+            }
         });
 
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
                 loadLanguage();
                 resetScreen();
+            } else {
+                // Ensure first zone is active on regular page loads
+                const firstZone = document.querySelector('[data-zone="0"]');
+                if (firstZone && !firstZone.classList.contains('active')) {
+                    firstZone.classList.add('active');
+                }
             }
         });
     </script>
