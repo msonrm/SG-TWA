@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simple-geomancy-v4';
+const CACHE_NAME = 'simple-geomancy-v5';
 const urlsToCache = [
   '/SG-TWA/',
   '/SG-TWA/index.html',
@@ -7,6 +7,7 @@ const urlsToCache = [
   '/SG-TWA/St.html',
   '/SG-TWA/Oo.html',
   '/SG-TWA/Help.html',
+  '/SG-TWA/common.css',
   '/SG-TWA/manifest.json',
   '/SG-TWA/TitleLogo.png',
   '/SG-TWA/Icon_192.png',
