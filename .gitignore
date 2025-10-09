@@ -1,0 +1,28 @@
+# Keystore files - DO NOT COMMIT
+*.keystore
+*.jks
+*.pfx
+*.p12
+*.pem
+*.key
+
+# TWA build outputs
+twa-project/
+android-output/
+*.apk
+*.aab
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
