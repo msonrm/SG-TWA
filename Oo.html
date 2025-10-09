@@ -73,6 +73,19 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: none;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 80% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 0.2;
+            }
+            100% {
+                opacity: 1;
+            }
         }
 
         .generate-button.holding {
@@ -88,6 +101,7 @@
             background: #c8c8c8;
             color: #999;
             cursor: not-allowed;
+            animation: none;
         }
 
         .dialog-overlay {
