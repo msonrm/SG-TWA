@@ -10,7 +10,7 @@ if (workbox) {
   // キャッシュ名のプレフィックス
   workbox.core.setCacheNameDetails({
     prefix: 'simple-geomancy',
-    suffix: 'v9',
+    suffix: 'v10',
     precache: 'precache',
     runtime: 'runtime'
   });
@@ -21,18 +21,17 @@ if (workbox) {
 
   // プリキャッシュ（初回インストール時にキャッシュ）
   workbox.precaching.precacheAndRoute([
-    { url: '/SG-TWA/', revision: '9' },
-    { url: '/SG-TWA/index.html', revision: '9' },
-    { url: '/SG-TWA/dots.html', revision: '9' },
-    { url: '/SG-TWA/ScHc.html', revision: '9' },
-    { url: '/SG-TWA/St.html', revision: '9' },
-    { url: '/SG-TWA/Oo.html', revision: '9' },
-    { url: '/SG-TWA/Help.html', revision: '9' },
-    { url: '/SG-TWA/common.css', revision: '9' },
-    { url: '/SG-TWA/common.js', revision: '9' },
-    { url: '/SG-TWA/manifest.json', revision: '9' },
-    { url: '/SG-TWA/TitleLogo.png', revision: '2' },
-    { url: '/SG-TWA/TitleLogo2.png', revision: '1' },
+    { url: '/SG-TWA/', revision: '10' },
+    { url: '/SG-TWA/index.html', revision: '10' },
+    { url: '/SG-TWA/dots.html', revision: '10' },
+    { url: '/SG-TWA/ScHc.html', revision: '10' },
+    { url: '/SG-TWA/St.html', revision: '10' },
+    { url: '/SG-TWA/Oo.html', revision: '10' },
+    { url: '/SG-TWA/Help.html', revision: '10' },
+    { url: '/SG-TWA/common.css', revision: '10' },
+    { url: '/SG-TWA/common.js', revision: '10' },
+    { url: '/SG-TWA/manifest.json', revision: '10' },
+    { url: '/SG-TWA/TitleLogo.png', revision: '3' },
     { url: '/SG-TWA/Icon_192.png', revision: '2' },
     { url: '/SG-TWA/Icon_512.png', revision: '2' }
   ]);
@@ -41,7 +40,7 @@ if (workbox) {
   workbox.routing.registerRoute(
     ({ request }) => request.destination === 'document',
     new workbox.strategies.NetworkFirst({
-      cacheName: 'simple-geomancy-html-v9',
+      cacheName: 'simple-geomancy-html-v10',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 10,
@@ -57,7 +56,7 @@ if (workbox) {
       request.destination === 'style' ||
       request.destination === 'script',
     new workbox.strategies.StaleWhileRevalidate({
-      cacheName: 'simple-geomancy-assets-v9',
+      cacheName: 'simple-geomancy-assets-v10',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 20,
@@ -71,7 +70,7 @@ if (workbox) {
   workbox.routing.registerRoute(
     ({ request }) => request.destination === 'image',
     new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-images-v9',
+      cacheName: 'simple-geomancy-images-v10',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 50,
@@ -89,7 +88,7 @@ if (workbox) {
     ({ url }) => url.origin === 'https://fonts.googleapis.com' ||
                  url.origin === 'https://fonts.gstatic.com',
     new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-fonts-v9',
+      cacheName: 'simple-geomancy-fonts-v10',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 10,
@@ -109,7 +108,7 @@ if (workbox) {
       return pathname.match(/\/SG-TWA\/\d{4}\.png$/);
     },
     new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-symbols-v9',
+      cacheName: 'simple-geomancy-symbols-v10',
       plugins: [
         new workbox.expiration.ExpirationPlugin({
           maxEntries: 16,
@@ -124,13 +123,13 @@ if (workbox) {
 
   // 古いバージョンのキャッシュを削除
   const CURRENT_CACHES = [
-    'simple-geomancy-html-v9',
-    'simple-geomancy-assets-v9',
-    'simple-geomancy-images-v9',
-    'simple-geomancy-fonts-v9',
-    'simple-geomancy-symbols-v9',
-    'simple-geomancy-precache-v9',
-    'simple-geomancy-runtime-v9'
+    'simple-geomancy-html-v10',
+    'simple-geomancy-assets-v10',
+    'simple-geomancy-images-v10',
+    'simple-geomancy-fonts-v10',
+    'simple-geomancy-symbols-v10',
+    'simple-geomancy-precache-v10',
+    'simple-geomancy-runtime-v10'
   ];
 
   self.addEventListener('activate', (event) => {
