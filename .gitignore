@@ -12,6 +12,12 @@ android-output/
 *.apk
 *.aab
 
+# Gradle files
+.gradle/
+build/
+*/build/
+local.properties
+
 # Node modules
 node_modules/
 

@@ -1,0 +1,39 @@
+<en-US>
+Version 2.0 - Major Update!
+
+Completely rebuilt with cutting-edge technology for enhanced stability and performance!
+
+What's New:
+• Brand new architecture ensures smooth, reliable operation
+• Beautiful dark mode throughout the entire app - easy on your eyes day and night
+• Lightning-fast loading with improved caching technology
+• Refreshed modern design with intuitive navigation
+
+Experience a more stable, beautiful, and responsive app.
+</en-US>
+<fr-FR>
+Version 2.0 - Mise à jour majeure !
+
+Entièrement reconstruit avec une technologie de pointe pour une stabilité et des performances accrues !
+
+Nouveautés :
+• Nouvelle architecture garantissant un fonctionnement fluide et fiable
+• Magnifique mode sombre dans toute l'application - reposant pour vos yeux jour et nuit
+• Chargement ultra-rapide grâce à une technologie de cache améliorée
+• Design moderne rafraîchi avec navigation intuitive
+
+Profitez d'une application plus stable, belle et réactive.
+</fr-FR>
+<ja-JP>
+バージョン 2.0 - メジャーアップデート！
+
+最新技術で完全に作り直し、安定性とパフォーマンスが大幅に向上しました！
+
+新機能：
+• 新しいアーキテクチャでスムーズで信頼性の高い動作を実現
+• アプリ全体で美しいダークモード対応 - 昼も夜も目に優しい
+• 改善されたキャッシュ技術で超高速読み込み
+• 直感的なナビゲーションを備えた洗練されたモダンデザイン
+
+より安定した、美しく、快適なアプリをぜひ体験してください。
+</ja-JP>
