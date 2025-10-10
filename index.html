@@ -8,10 +8,68 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Simple Geomancy">
     <title>Simple Geomancy</title>
+    <script>
+        // FOUC防止: DOMが構築される前にテーマを適用
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('simplegeomancy-theme') || 'system';
+                const html = document.documentElement;
+
+                if (savedTheme === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.setAttribute('data-theme', 'dark');
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to apply initial theme:', e);
+            }
+        })();
+    </script>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --border-color: #cccccc;
+            --border-hover: #999999;
+            --button-bg: #d0d0d0;
+            --button-shadow: rgba(0, 0, 0, 0.15);
+            --button-shadow-active: rgba(0, 0, 0, 0.2);
+            --overlay-bg: rgba(0, 0, 0, 0.5);
+            --dialog-bg: #ffffff;
+            --dialog-shadow: rgba(0, 0, 0, 0.3);
+            --primary-color: #3f51b5;
+            --icon-color: #666666;
+            --icon-hover: #333333;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #444444;
+            --border-hover: #666666;
+            --button-bg: #2d2d2d;
+            --button-shadow: rgba(0, 0, 0, 0.3);
+            --button-shadow-active: rgba(0, 0, 0, 0.5);
+            --overlay-bg: rgba(0, 0, 0, 0.7);
+            --dialog-bg: #2d2d2d;
+            --dialog-shadow: rgba(0, 0, 0, 0.5);
+            --primary-color: #5c6bc0;
+            --icon-color: #b0b0b0;
+            --icon-hover: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
         .top-right-controls {
             position: fixed;
@@ -23,39 +81,8 @@
             gap: 12px;
         }
 
-        .language-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .globe-icon {
-            color: #666;
-            font-size: 28px;
-        }
-
-        .language-dropdown {
-            padding: 6px 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: white;
-            color: #333;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .language-dropdown:hover {
-            border-color: #999;
-        }
-
-        .language-dropdown:focus {
-            border-color: #3f51b5;
-        }
-
         .help-icon {
-            color: #666;
+            color: var(--icon-color);
             text-decoration: none;
             font-size: 32px;
             transition: color 0.2s ease;
@@ -65,11 +92,11 @@
         }
 
         .help-icon:hover {
-            color: #333;
+            color: var(--icon-hover);
         }
 
         .settings-icon {
-            color: #666;
+            color: var(--icon-color);
             font-size: 32px;
             transition: color 0.2s ease;
             cursor: pointer;
@@ -81,7 +108,7 @@
         }
 
         .settings-icon:hover {
-            color: #333;
+            color: var(--icon-hover);
         }
 
         .settings-dialog-overlay {
@@ -90,7 +117,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: var(--overlay-bg);
             display: none;
             align-items: center;
             justify-content: center;
@@ -102,18 +129,18 @@
         }
 
         .settings-dialog {
-            background: white;
+            background: var(--dialog-bg);
             padding: 24px;
             max-width: 400px;
             width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px var(--dialog-shadow);
         }
 
         .settings-dialog-title {
             font-size: 20px;
             font-weight: 500;
             margin-bottom: 24px;
-            color: #333;
+            color: var(--text-color);
         }
 
         .settings-section {
@@ -128,29 +155,37 @@
 
         .settings-row-label {
             font-size: 16px;
-            color: #666;
+            color: var(--text-secondary);
             min-width: 80px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-row-icon {
+            font-size: 20px;
+            color: var(--icon-color);
         }
 
         .settings-dropdown {
             flex: 1;
             padding: 8px 12px;
             font-size: 16px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            background: white;
-            color: #333;
+            background: var(--bg-color);
+            color: var(--text-color);
             cursor: pointer;
             outline: none;
             transition: border-color 0.2s ease;
         }
 
         .settings-dropdown:hover {
-            border-color: #999;
+            border-color: var(--border-hover);
         }
 
         .settings-dropdown:focus {
-            border-color: #3f51b5;
+            border-color: var(--primary-color);
         }
 
 
@@ -164,7 +199,7 @@
         .settings-dialog-btn {
             background: none;
             border: none;
-            color: #3f51b5;
+            color: var(--primary-color);
             font-size: 16px;
             font-weight: 600;
             padding: 8px 16px;
@@ -182,7 +217,7 @@
         }
 
         .spacer-top {
-            height: 50px;
+            height: 80px;
             flex-shrink: 0;
         }
 
@@ -192,11 +227,16 @@
             aspect-ratio: 2 / 1;
             object-fit: contain;
             flex-shrink: 0;
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+
+        [data-theme="dark"] .logo {
+            filter: invert(1);
         }
 
         .spacer-middle {
-            flex: 1;
-            min-height: 40px;
+            height: 160px;
+            flex-shrink: 0;
         }
 
         .button {
@@ -204,17 +244,17 @@
             max-width: 500px;
             min-height: 64px;
             padding: 12px 20px;
-            background: #d0d0d0;
+            background: var(--button-bg);
             border: none;
             border-radius: 6px;
             font-size: 18px;
             font-weight: 500;
-            color: #333;
+            color: var(--text-color);
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 6px var(--button-shadow);
             transition: all 0.2s ease;
             cursor: pointer;
             flex-shrink: 0;
@@ -223,7 +263,7 @@
 
         .button:active {
             transform: translateY(1px);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px var(--button-shadow-active);
         }
 
         .spacer-button-1 {
@@ -242,27 +282,45 @@
         }
 
 
-        .spacer-bottom {
-            height: 30px;
-            flex-shrink: 0;
+        .announcement-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 20px;
+        }
+
+        .announcement-text {
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 80%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .announcement-text.show {
+            opacity: 1;
         }
 
         .footer {
             text-align: center;
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
             padding: 20px;
             flex-shrink: 0;
         }
 
         .footer a {
-            color: #666;
+            color: var(--text-secondary);
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .footer a:hover {
-            color: #3f51b5;
+            color: var(--primary-color);
             text-decoration: underline;
         }
 
@@ -278,14 +336,6 @@
 </head>
 <body>
     <div class="top-right-controls">
-        <div class="language-control">
-            <span class="material-symbols-outlined globe-icon">language</span>
-            <select class="language-dropdown" id="languageDropdown" onchange="selectLanguage(this.value)">
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="ja">日本語</option>
-            </select>
-        </div>
         <a href="Help.html" class="help-icon">
             <span class="material-symbols-outlined">help</span>
         </a>
@@ -300,7 +350,24 @@
 
             <div class="settings-section">
                 <div class="settings-row">
-                    <label class="settings-row-label" id="themeLabel">テーマ</label>
+                    <label class="settings-row-label">
+                        <span class="material-symbols-outlined settings-row-icon">language</span>
+                        <span id="languageLabel">言語</span>
+                    </label>
+                    <select class="settings-dropdown" id="languageDropdownDialog" onchange="selectLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="ja">日本語</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-row">
+                    <label class="settings-row-label">
+                        <span class="material-symbols-outlined settings-row-icon">brightness_6</span>
+                        <span id="themeLabel">テーマ</span>
+                    </label>
                     <select class="settings-dropdown" id="themeDropdown" onchange="selectTheme(this.value)">
                         <option value="system" id="themeSystem">システム設定に従う</option>
                         <option value="light" id="themeLight">ライト</option>
@@ -318,7 +385,7 @@
     <div class="container">
         <div class="spacer-top"></div>
         
-        <img src="TitleLogo.png" alt="Simple Geomancy" class="logo">
+        <img src="TitleLogo2.png" alt="Simple Geomancy" class="logo">
         
         <div class="spacer-middle"></div>
         
@@ -337,8 +404,12 @@
         <a href="Oo.html" class="button" id="btnOo">
             ワンオラクル
         </a>
-        
-        <div class="spacer-bottom"></div>
+
+        <div class="announcement-area">
+            <div class="announcement-text" id="announcementText">
+                アプリを全面的に作り直しました。
+            </div>
+        </div>
 
         <div class="footer">
             &copy; <span id="copyrightYear">2019</span> <a href="https://x.com/msonrm" target="_blank" rel="noopener noreferrer">msonrm</a>
@@ -348,6 +419,7 @@
     <script>
         // 言語設定のストレージキー（PWA/TWA対応）
         const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        const THEME_STORAGE_KEY = 'simplegeomancy-theme';
         
         // 言語ごとのテキスト定義
         const translations = {
@@ -356,33 +428,39 @@
                 btnSt: 'Simple Three-Figure Reading',
                 btnOo: 'Single Figure Reading',
                 settingsTitle: 'Settings',
+                languageLabel: 'Language',
                 themeLabel: 'Theme',
                 themeSystem: 'Follow system',
                 themeLight: 'Light',
                 themeDark: 'Dark',
-                settingsCloseBtn: 'Close'
+                settingsCloseBtn: 'Close',
+                announcement: 'The app has been completely redesigned.'
             },
             fr: {
                 btnScHc: 'Écu et Maisons géomantiques',
                 btnSt: 'Lecture à Trois Figures',
                 btnOo: 'Lecture à Une Figure',
                 settingsTitle: 'Paramètres',
+                languageLabel: 'Langue',
                 themeLabel: 'Thème',
                 themeSystem: 'Suivre le système',
                 themeLight: 'Clair',
                 themeDark: 'Sombre',
-                settingsCloseBtn: 'Fermer'
+                settingsCloseBtn: 'Fermer',
+                announcement: 'L\'application a été entièrement repensée.'
             },
             ja: {
                 btnScHc: 'シールドチャート&ハウスチャート',
                 btnSt: 'シンプル・トリプシティ',
                 btnOo: 'ワンオラクル',
                 settingsTitle: '設定',
+                languageLabel: '言語',
                 themeLabel: 'テーマ',
                 themeSystem: 'システム設定に従う',
                 themeLight: 'ライト',
                 themeDark: 'ダーク',
-                settingsCloseBtn: '閉じる'
+                settingsCloseBtn: '閉じる',
+                announcement: 'アプリを全面的に作り直しました。'
             }
         };
 
@@ -391,20 +469,20 @@
         // 言語を選択する関数
         function selectLanguage(lang) {
             // ドロップダウンの選択状態を更新
-            document.getElementById('languageDropdown').value = lang;
+            document.getElementById('languageDropdownDialog').value = lang;
 
             currentLanguage = lang;
-            
+
             // localStorageに保存（PWA/TWA対応）
             try {
                 localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
             } catch (e) {
                 console.error('Failed to save language preference:', e);
             }
-            
+
             // htmlタグのlang属性を更新
             document.documentElement.lang = lang;
-            
+
             // UIを更新
             updateUI(lang);
         }
@@ -417,11 +495,13 @@
             document.getElementById('btnSt').textContent = texts.btnSt;
             document.getElementById('btnOo').textContent = texts.btnOo;
             document.getElementById('settingsTitle').textContent = texts.settingsTitle;
+            document.getElementById('languageLabel').textContent = texts.languageLabel;
             document.getElementById('themeLabel').textContent = texts.themeLabel;
             document.getElementById('themeSystem').textContent = texts.themeSystem;
             document.getElementById('themeLight').textContent = texts.themeLight;
             document.getElementById('themeDark').textContent = texts.themeDark;
             document.getElementById('settingsCloseBtn').textContent = texts.settingsCloseBtn;
+            document.getElementById('announcementText').textContent = texts.announcement;
         }
 
         // 設定ダイアログを開く
@@ -441,10 +521,53 @@
             }
         }
 
-        // テーマを選択（未実装）
+        // テーマを適用する関数
+        function applyTheme(theme) {
+            const html = document.documentElement;
+
+            if (theme === 'system') {
+                // システム設定を確認
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.setAttribute('data-theme', 'dark');
+                } else {
+                    html.removeAttribute('data-theme');
+                }
+            } else if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+        }
+
+        // テーマを選択する関数
         function selectTheme(theme) {
             document.getElementById('themeDropdown').value = theme;
-            // TODO: テーマ変更の実装
+
+            // テーマを適用
+            applyTheme(theme);
+
+            // localStorageに保存
+            try {
+                localStorage.setItem(THEME_STORAGE_KEY, theme);
+            } catch (e) {
+                console.error('Failed to save theme preference:', e);
+            }
+        }
+
+        // 保存されたテーマ設定を読み込む関数
+        function loadThemePreference() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme && (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark')) {
+                    return savedTheme;
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
+            }
+
+            // デフォルトはシステム設定に従う
+            return 'system';
         }
 
         // システム言語を検出する関数
@@ -495,17 +618,64 @@
             document.getElementById('copyrightYear').textContent = yearText;
         }
 
+        // 告知表示のストレージキー
+        const ANNOUNCEMENT_STORAGE_KEY = 'simplegeomancy-announcement-shown';
+        const ANNOUNCEMENT_VERSION = 'v2025'; // 新しい告知の際はこれを変更
+
+        // 告知を表示する関数
+        function showAnnouncement() {
+            try {
+                const shownVersion = localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY);
+
+                // まだこのバージョンの告知を見ていない場合のみ表示
+                if (shownVersion !== ANNOUNCEMENT_VERSION) {
+                    const announcementElement = document.getElementById('announcementText');
+
+                    // フェードイン
+                    setTimeout(() => {
+                        announcementElement.classList.add('show');
+                    }, 500);
+
+                    // 10秒後にフェードアウト
+                    setTimeout(() => {
+                        announcementElement.classList.remove('show');
+
+                        // 表示済みとしてマーク
+                        localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, ANNOUNCEMENT_VERSION);
+                    }, 10500);
+                }
+            } catch (e) {
+                console.error('Failed to manage announcement:', e);
+            }
+        }
+
         // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', () => {
             const result = loadLanguagePreference();
             selectLanguage(result.language);
 
+            // テーマを読み込んで適用
+            const theme = loadThemePreference();
+            selectTheme(theme);
+
             // 著作権年号を更新
             updateCopyrightYear();
+
+            // 告知を表示
+            showAnnouncement();
 
             // 初回訪問時はシステム言語検出結果をログに出力（デバッグ用）
             if (result.isFirstVisit) {
                 console.log('First visit detected. System language set to:', result.language);
+            }
+        });
+
+        // システムのダークモード設定の変更を監視
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const currentTheme = loadThemePreference();
+            // システム設定に従う場合のみ、リアルタイムで反映
+            if (currentTheme === 'system') {
+                applyTheme('system');
             }
         });
 

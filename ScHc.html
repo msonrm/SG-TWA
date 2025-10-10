@@ -4,13 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shield & House Chart - Simple Geomancy</title>
+    <script>
+        // FOUC防止: DOMが構築される前にテーマを適用
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('simplegeomancy-theme') || 'system';
+                const html = document.documentElement;
+
+                if (savedTheme === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.setAttribute('data-theme', 'dark');
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to apply initial theme:', e);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        :root {
+            --tab-inactive: #999999;
+            --tab-active: #333333;
+            --tab-active-underline: #333333;
+            --chart-title: #333333;
+            --checkbox-text: #333333;
+            --grid-color: #000000;
+            --canvas-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --tab-inactive: #888888;
+            --tab-active: #e0e0e0;
+            --tab-active-underline: #e0e0e0;
+            --chart-title: #e0e0e0;
+            --checkbox-text: #e0e0e0;
+            --grid-color: #ffffff;
+            --canvas-bg: #1a1a1a;
+        }
 
         .tabs {
             display: flex;
-            background: #d8d8d8;
+            background: var(--header-bg);
+            transition: background 0.3s ease;
         }
 
         .tab {
@@ -19,14 +58,14 @@
             background: none;
             border: none;
             font-size: 15px;
-            color: #999;
+            color: var(--tab-inactive);
             cursor: pointer;
             position: relative;
             transition: color 0.2s ease;
         }
 
         .tab.active {
-            color: #333;
+            color: var(--tab-active);
             font-weight: 600;
         }
 
@@ -37,7 +76,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: #333;
+            background: var(--tab-active-underline);
         }
 
         .content {
@@ -78,7 +117,8 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 12px;
-            color: #333;
+            color: var(--chart-title);
+            transition: color 0.3s ease;
         }
 
         .chart-checkbox-label {
@@ -96,7 +136,8 @@
 
         .chart-checkbox-text {
             font-size: 15px;
-            color: #333;
+            color: var(--checkbox-text);
+            transition: color 0.3s ease;
         }
     </style>
 </head>
@@ -145,6 +186,7 @@
     <script>
         // 言語設定のストレージキー
         const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        const THEME_STORAGE_KEY = 'simplegeomancy-theme';
         
         // 言語ごとのテキスト定義
         const translations = {
@@ -374,8 +416,16 @@
 
         function drawGrid() {
             const { unit } = getCanvasSize();
-            
-            ctx.strokeStyle = '#000';
+
+            // Get colors from CSS variables
+            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim();
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim();
+
+            // Fill background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, unit * 10, unit * 10);
+
+            ctx.strokeStyle = gridColor;
             ctx.lineWidth = 1;
 
             const gridSize = unit * 8;
@@ -421,16 +471,41 @@
             const { unit } = getCanvasSize();
             const img = new Image();
             img.src = `${pattern}.png`;
-            
+
             img.onload = () => {
                 const imgAspect = 2 / 3;
                 const baseWidth = unit;
                 const baseHeight = baseWidth / imgAspect;
-                
+
                 const x = cellX + (cellWidth - baseWidth) / 2;
                 const y = cellY + (cellHeight - baseHeight) / 2;
-                
-                ctx.drawImage(img, x, y, baseWidth, baseHeight);
+
+                // Check if dark mode is active
+                const isDark = document.documentElement.hasAttribute('data-theme') &&
+                              document.documentElement.getAttribute('data-theme') === 'dark';
+
+                if (isDark) {
+                    // Create a temporary canvas to apply invert filter
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = baseWidth * (window.devicePixelRatio || 1);
+                    tempCanvas.height = baseHeight * (window.devicePixelRatio || 1);
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    tempCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+                    tempCtx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+                    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];
+                        data[i + 1] = 255 - data[i + 1];
+                        data[i + 2] = 255 - data[i + 2];
+                    }
+                    tempCtx.putImageData(imageData, 0, 0);
+                    ctx.drawImage(tempCanvas, x, y, baseWidth, baseHeight);
+                } else {
+                    ctx.drawImage(img, x, y, baseWidth, baseHeight);
+                }
             };
         }
 
@@ -530,12 +605,19 @@
 
             function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                
-                ctx.strokeStyle = '#000';
+
+                const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim();
+                const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim();
+
+                // Fill background
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                ctx.strokeStyle = gridColor;
                 ctx.lineWidth = 1;
-                
+
                 ctx.strokeRect(unit, unit, unit * 8, unit * 8);
-                
+
                 ctx.beginPath();
                 ctx.moveTo(unit, unit);
                 ctx.lineTo(unit * 3, unit * 3);
@@ -614,12 +696,19 @@
 
             function drawChart() {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                
-                ctx.strokeStyle = '#000';
+
+                const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim();
+                const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim();
+
+                // Fill background
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+                ctx.strokeStyle = gridColor;
                 ctx.lineWidth = 1;
-                
+
                 ctx.strokeRect(unit, unit, unit * 8, unit * 8);
-                
+
                 ctx.beginPath();
                 ctx.moveTo(unit, unit);
                 ctx.lineTo(unit * 3, unit * 3);
@@ -733,6 +822,9 @@
                 { x: unit * 1.1, y: unit * 2.25 }
             ];
 
+            const isDark = document.documentElement.hasAttribute('data-theme') &&
+                          document.documentElement.getAttribute('data-theme') === 'dark';
+
             houses.forEach((house, index) => {
                 const img = new Image();
                 img.src = `${housePatterns[index]}.png`;
@@ -740,7 +832,28 @@
                     const imgAspect = 2 / 3;
                     const baseWidth = unit;
                     const baseHeight = baseWidth / imgAspect;
-                    ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
+
+                    if (isDark) {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = baseWidth * (window.devicePixelRatio || 1);
+                        tempCanvas.height = baseHeight * (window.devicePixelRatio || 1);
+                        const tempCtx = tempCanvas.getContext('2d');
+
+                        tempCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+                        tempCtx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+                        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        const data = imageData.data;
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = 255 - data[i];
+                            data[i + 1] = 255 - data[i + 1];
+                            data[i + 2] = 255 - data[i + 2];
+                        }
+                        tempCtx.putImageData(imageData, 0, 0);
+                        ctx.drawImage(tempCanvas, house.x, house.y, baseWidth, baseHeight);
+                    } else {
+                        ctx.drawImage(img, house.x, house.y, baseWidth, baseHeight);
+                    }
                 };
             });
         }
@@ -756,6 +869,9 @@
                 { x: unit * 4.5, y: unit * 5.15, pattern: shieldChartData.judge }
             ];
 
+            const isDark = document.documentElement.hasAttribute('data-theme') &&
+                          document.documentElement.getAttribute('data-theme') === 'dark';
+
             witnesses.forEach(witness => {
                 const img = new Image();
                 img.src = `${witness.pattern}.png`;
@@ -763,12 +879,74 @@
                     const imgAspect = 2 / 3;
                     const baseWidth = unit;
                     const baseHeight = baseWidth / imgAspect;
-                    ctx.drawImage(img, witness.x, witness.y, baseWidth, baseHeight);
+
+                    if (isDark) {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = baseWidth * (window.devicePixelRatio || 1);
+                        tempCanvas.height = baseHeight * (window.devicePixelRatio || 1);
+                        const tempCtx = tempCanvas.getContext('2d');
+
+                        tempCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+                        tempCtx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+                        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                        const data = imageData.data;
+                        for (let i = 0; i < data.length; i += 4) {
+                            data[i] = 255 - data[i];
+                            data[i + 1] = 255 - data[i + 1];
+                            data[i + 2] = 255 - data[i + 2];
+                        }
+                        tempCtx.putImageData(imageData, 0, 0);
+                        ctx.drawImage(tempCanvas, witness.x, witness.y, baseWidth, baseHeight);
+                    } else {
+                        ctx.drawImage(img, witness.x, witness.y, baseWidth, baseHeight);
+                    }
                 };
             });
         }
 
+        // テーマを適用する関数
+        function applyTheme(theme) {
+            const html = document.documentElement;
+
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.setAttribute('data-theme', 'dark');
+                } else {
+                    html.removeAttribute('data-theme');
+                }
+            } else if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+
+            // Redraw all charts when theme changes
+            if (canvas && ctx) {
+                drawShieldChart();
+                initHouseChart1();
+                initHouseChart2();
+            }
+        }
+
+        // テーマ設定を読み込む
+        function loadTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme && (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark')) {
+                    applyTheme(savedTheme);
+                } else {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
+                applyTheme('system');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
             loadLanguage();
             initCanvas();
             drawShieldChart();
@@ -831,7 +1009,20 @@
 
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
+                loadTheme();
                 loadLanguage();
+            }
+        });
+
+        // システムのダークモード設定の変更を監視
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (!savedTheme || savedTheme === 'system') {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to update theme:', e);
             }
         });
     </script>

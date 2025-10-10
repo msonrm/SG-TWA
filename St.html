@@ -4,9 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Simple Three-Figure Reading - Simple Geomancy</title>
+    <script>
+        // FOUC防止: DOMが構築される前にテーマを適用
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('simplegeomancy-theme') || 'system';
+                const html = document.documentElement;
+
+                if (savedTheme === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.setAttribute('data-theme', 'dark');
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to apply initial theme:', e);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        :root {
+            --grid-color: #000000;
+            --canvas-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --grid-color: #ffffff;
+            --canvas-bg: #1a1a1a;
+        }
 
         .content {
             flex: 1;
@@ -46,6 +74,7 @@
     <script>
         // 言語設定のストレージキー
         const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        const THEME_STORAGE_KEY = 'simplegeomancy-theme';
         
         // 言語ごとのテキスト定義
         const translations = {
@@ -181,12 +210,20 @@
 
         function drawGrid() {
             const { unit } = getCanvasSize();
-            
-            ctx.strokeStyle = '#000';
+
+            // Get colors from CSS variables
+            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid-color').trim();
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim();
+
+            // Fill background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, unit * 10, unit * 10);
+
+            ctx.strokeStyle = gridColor;
             ctx.lineWidth = 1;
 
             const gridSize = unit * 8;
-            
+
             ctx.strokeRect(unit, unit, gridSize, gridSize);
 
             ctx.beginPath();
@@ -204,16 +241,48 @@
             const { unit } = getCanvasSize();
             const img = new Image();
             img.src = `${pattern}.png`;
-            
+
             img.onload = () => {
                 const imgAspect = 2 / 3;
                 const baseWidth = unit * 2;
                 const baseHeight = baseWidth / imgAspect;
-                
+
                 const x = cellX + (cellWidth - baseWidth) / 2;
                 const y = cellY + (cellHeight - baseHeight) / 2;
-                
-                ctx.drawImage(img, x, y, baseWidth, baseHeight);
+
+                // Check if dark mode is active
+                const isDark = document.documentElement.hasAttribute('data-theme') &&
+                              document.documentElement.getAttribute('data-theme') === 'dark';
+
+                if (isDark) {
+                    // Create a temporary canvas to apply invert filter
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = baseWidth * (window.devicePixelRatio || 1);
+                    tempCanvas.height = baseHeight * (window.devicePixelRatio || 1);
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    // Scale for device pixel ratio
+                    tempCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+                    // Draw image to temp canvas
+                    tempCtx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+                    // Get image data and invert colors
+                    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];     // Red
+                        data[i + 1] = 255 - data[i + 1]; // Green
+                        data[i + 2] = 255 - data[i + 2]; // Blue
+                        // Alpha channel (data[i + 3]) remains unchanged
+                    }
+                    tempCtx.putImageData(imageData, 0, 0);
+
+                    // Draw inverted image to main canvas
+                    ctx.drawImage(tempCanvas, x, y, baseWidth, baseHeight);
+                } else {
+                    ctx.drawImage(img, x, y, baseWidth, baseHeight);
+                }
             };
         }
 
@@ -255,7 +324,46 @@
             }
         }
 
+        // テーマを適用する関数
+        function applyTheme(theme) {
+            const html = document.documentElement;
+
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.setAttribute('data-theme', 'dark');
+                } else {
+                    html.removeAttribute('data-theme');
+                }
+            } else if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+
+            // Redraw chart when theme changes
+            if (canvas && ctx) {
+                drawTriplicity();
+            }
+        }
+
+        // テーマ設定を読み込む
+        function loadTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme && (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark')) {
+                    applyTheme(savedTheme);
+                } else {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
+                applyTheme('system');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
             loadLanguage();
             initCanvas();
             drawTriplicity();
@@ -263,7 +371,20 @@
 
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
+                loadTheme();
                 loadLanguage();
+            }
+        });
+
+        // システムのダークモード設定の変更を監視
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (!savedTheme || savedTheme === 'system') {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to update theme:', e);
             }
         });
     </script>

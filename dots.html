@@ -4,9 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dots - Simple Geomancy</title>
+    <script>
+        // FOUC防止: DOMが構築される前にテーマを適用
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('simplegeomancy-theme') || 'system';
+                const html = document.documentElement;
+
+                if (savedTheme === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.setAttribute('data-theme', 'dark');
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to apply initial theme:', e);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        :root {
+            --ok-btn-bg: #c8c8c8;
+            --ok-btn-text: #999999;
+            --ok-btn-active-bg: #a8a8a8;
+            --ok-btn-active-text: #000000;
+            --tap-zone-bg: #f8f8f8;
+            --tap-zone-border: #e0e0e0;
+            --dot-color-default: #333333;
+            --symbol-slot-bg: #ffffff;
+            --color-dialog-bg: #ffffff;
+            --color-dialog-text: #333333;
+            --color-radio-border: #999999;
+            --color-radio-selected: #00897b;
+        }
+
+        [data-theme="dark"] {
+            --ok-btn-bg: #3a3a3a;
+            --ok-btn-text: #666666;
+            --ok-btn-active-bg: #4d4d4d;
+            --ok-btn-active-text: #e0e0e0;
+            --tap-zone-bg: #2d2d2d;
+            --tap-zone-border: #444444;
+            --dot-color-default: #ffffff;
+            --symbol-slot-bg: #3d3d3d;
+            --color-dialog-bg: #2d2d2d;
+            --color-dialog-text: #e0e0e0;
+            --color-radio-border: #666666;
+            --color-radio-selected: #26a69a;
+        }
+
         body {
             touch-action: none;
         }
@@ -18,19 +67,19 @@
         }
 
         .ok-btn {
-            background: #c8c8c8;
+            background: var(--ok-btn-bg);
             border: none;
             padding: 8px 36px;
             border-radius: 6px;
             font-size: 16px;
-            color: #999;
+            color: var(--ok-btn-text);
             cursor: not-allowed;
             transition: all 0.2s ease;
         }
 
         .ok-btn.active {
-            background: #a8a8a8;
-            color: #000;
+            background: var(--ok-btn-active-bg);
+            color: var(--ok-btn-active-text);
             cursor: pointer;
             animation: pulse 3s ease-in-out infinite;
         }
@@ -55,10 +104,11 @@
 
         .tap-zone {
             flex: 1;
-            background: #f8f8f8;
-            border-bottom: 2px solid #e0e0e0;
+            background: var(--tap-zone-bg);
+            border-bottom: 2px solid var(--tap-zone-border);
             position: relative;
             cursor: crosshair;
+            transition: background 0.3s ease;
         }
 
         .tap-zone:last-child {
@@ -78,35 +128,41 @@
             position: absolute;
             width: 8px;
             height: 8px;
-            background: #333;
+            background: var(--dot-color-default);
             transform: translate(-50%, -50%) rotate(45deg);
             pointer-events: none;
             z-index: 1;
         }
 
         .symbol-slots {
-            background: #d8d8d8;
+            background: var(--header-bg);
             padding: 16px;
             display: flex;
             justify-content: center;
             gap: 12px;
+            transition: background 0.3s ease;
         }
 
         .symbol-slot {
             width: 60px;
             height: 60px;
-            background: #ffffff;
+            background: var(--symbol-slot-bg);
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         .symbol-slot img {
             width: 85%;
             height: 85%;
             object-fit: contain;
+        }
+
+        [data-theme="dark"] .symbol-slot img {
+            filter: invert(1);
         }
 
         .dialog-overlay {
@@ -127,11 +183,12 @@
         }
 
         .dialog {
-            background: white;
+            background: var(--dialog-bg);
             padding: 24px;
             max-width: 320px;
             width: 90%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
         }
 
         .dialog-content {
@@ -142,6 +199,10 @@
             width: 60px;
             height: 90px;
             object-fit: contain;
+        }
+
+        [data-theme="dark"] .dialog-symbol {
+            filter: invert(1);
         }
 
         .dialog-symbol-row {
@@ -165,25 +226,31 @@
             object-fit: contain;
         }
 
+        [data-theme="dark"] .dialog-symbols-grid img {
+            filter: invert(1);
+        }
+
         .dialog-title {
             font-size: 18px;
             font-weight: 500;
             margin-bottom: 12px;
-            color: #333;
+            color: var(--dialog-text);
+            transition: color 0.3s ease;
         }
 
         .dialog-text {
             font-size: 14px;
-            color: #666;
+            color: var(--dialog-text-secondary);
             margin-bottom: 20px;
             line-height: 1.6;
             text-align: center;
+            transition: color 0.3s ease;
         }
 
         .dialog-btn {
             background: none;
             border: none;
-            color: #00897b;
+            color: var(--dialog-btn-color);
             font-size: 16px;
             font-weight: 600;
             padding: 8px 16px;
@@ -209,18 +276,20 @@
         }
 
         .color-dialog {
-            background: white;
+            background: var(--color-dialog-bg);
             padding: 24px;
             max-width: 320px;
             width: 90%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
         }
 
         .color-dialog-title {
             font-size: 18px;
             font-weight: 500;
             margin-bottom: 20px;
-            color: #333;
+            color: var(--color-dialog-text);
+            transition: color 0.3s ease;
         }
 
         .color-option {
@@ -233,7 +302,7 @@
         .color-radio {
             width: 24px;
             height: 24px;
-            border: 2px solid #999;
+            border: 2px solid var(--color-radio-border);
             border-radius: 50%;
             margin-right: 16px;
             display: flex;
@@ -243,13 +312,13 @@
         }
 
         .color-option.selected .color-radio {
-            border-color: #00897b;
+            border-color: var(--color-radio-selected);
         }
 
         .color-radio-inner {
             width: 12px;
             height: 12px;
-            background: #00897b;
+            background: var(--color-radio-selected);
             border-radius: 50%;
             display: none;
         }
@@ -260,7 +329,8 @@
 
         .color-label {
             font-size: 16px;
-            color: #333;
+            color: var(--color-dialog-text);
+            transition: color 0.3s ease;
         }
 
         .color-dialog-actions {
@@ -272,7 +342,7 @@
         .color-dialog-btn {
             background: none;
             border: none;
-            color: #00897b;
+            color: var(--dialog-btn-color);
             font-size: 16px;
             font-weight: 600;
             padding: 8px 16px;
@@ -315,11 +385,11 @@
     <div class="color-dialog-overlay" id="colorDialogOverlay">
         <div class="color-dialog">
             <div class="color-dialog-title" id="colorDialogTitle">ドット色を選択</div>
-            <div class="color-option selected" data-color="#333" onclick="selectColor('#333', this)">
+            <div class="color-option selected" data-color="default" onclick="selectColor('default', this)">
                 <div class="color-radio">
                     <div class="color-radio-inner"></div>
                 </div>
-                <div class="color-label" id="colorBlack">黒</div>
+                <div class="color-label" id="colorDefault">黒</div>
             </div>
             <div class="color-option" data-color="#f44336" onclick="selectColor('#f44336', this)">
                 <div class="color-radio">
@@ -354,6 +424,7 @@
     <script>
         // 言語設定のストレージキー
         const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
+        const THEME_STORAGE_KEY = 'simplegeomancy-theme';
         
         // 言語ごとのテキスト定義
         const translations = {
@@ -368,7 +439,8 @@
                 finalTextScHc: 'Your charts are ready to view',
                 finalTextSt: 'Your three-figure reading is ready',
                 colorDialogTitle: 'Select dot color',
-                colorBlack: 'Black',
+                colorDefaultLight: 'Black',
+                colorDefaultDark: 'White',
                 colorRed: 'Red',
                 colorOrange: 'Orange',
                 colorGreen: 'Green',
@@ -385,7 +457,8 @@
                 finalTextScHc: 'Vos tableaux sont prêts',
                 finalTextSt: 'Votre lecture à trois figures est prête',
                 colorDialogTitle: 'Choisir la couleur des points',
-                colorBlack: 'Noir',
+                colorDefaultLight: 'Noir',
+                colorDefaultDark: 'Blanc',
                 colorRed: 'Rouge',
                 colorOrange: 'Orange',
                 colorGreen: 'Vert',
@@ -402,7 +475,8 @@
                 finalTextScHc: 'シールドチャート、ハウスチャートを生成します',
                 finalTextSt: 'シンプル・トリプリシティを生成します',
                 colorDialogTitle: 'ドット色を選択',
-                colorBlack: '黒',
+                colorDefaultLight: '黒',
+                colorDefaultDark: '白',
                 colorRed: '赤',
                 colorOrange: 'オレンジ',
                 colorGreen: '緑',
@@ -429,8 +503,11 @@
         // 色ダイアログのUIを更新
         function updateColorDialogUI() {
             const texts = translations[currentLanguage];
+            const isDark = document.documentElement.hasAttribute('data-theme') &&
+                          document.documentElement.getAttribute('data-theme') === 'dark';
+
             document.getElementById('colorDialogTitle').textContent = texts.colorDialogTitle;
-            document.getElementById('colorBlack').textContent = texts.colorBlack;
+            document.getElementById('colorDefault').textContent = isDark ? texts.colorDefaultDark : texts.colorDefaultLight;
             document.getElementById('colorRed').textContent = texts.colorRed;
             document.getElementById('colorOrange').textContent = texts.colorOrange;
             document.getElementById('colorGreen').textContent = texts.colorGreen;
@@ -444,8 +521,16 @@
         let zoneDots = [[], [], [], []];
         let completedSymbols = [];
         let currentSymbol = null;
-        let currentDotColor = '#333';
-        let selectedColor = '#333';
+        let currentDotColor = 'default';
+        let selectedColor = 'default';
+
+        // 現在のテーマに基づいて実際の色を取得
+        function getActualColor(color) {
+            if (color === 'default') {
+                return getComputedStyle(document.documentElement).getPropertyValue('--dot-color-default').trim();
+            }
+            return color;
+        }
 
         const geomancySymbols = {
             '2222': { name: 'Populus', meaning: '人々・安定' },
@@ -502,7 +587,7 @@
             dot.className = 'dot';
             dot.style.left = adjustedX + 'px';
             dot.style.top = adjustedY + 'px';
-            dot.style.background = currentDotColor;
+            dot.style.background = getActualColor(currentDotColor);
             zoneElement.appendChild(dot);
             
             zoneDots[zone].push({ x: adjustedX, y: adjustedY });
@@ -571,7 +656,7 @@
                     const dot1 = dots[pairIndex * 2];
                     const dot2 = dots[pairIndex * 2 + 1];
 
-                    ctx.strokeStyle = currentDotColor;
+                    ctx.strokeStyle = getActualColor(currentDotColor);
                     ctx.lineWidth = 1;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
@@ -604,7 +689,7 @@
                 <div class="dialog-title">${jpName}</div>
                 <div class="dialog-symbol-row">
                     <img src="${pattern}.png" class="dialog-symbol" alt="${symbol.name}">
-                    <div style="font-size: 18px; color: #333;">${symbol.name}</div>
+                    <div style="font-size: 18px; color: var(--dialog-text);">${symbol.name}</div>
                 </div>
                 <div style="text-align: right;">
                     <button class="dialog-btn" onclick="closeDialog()">OK</button>
@@ -695,13 +780,18 @@
 
         function applyColorChange() {
             currentDotColor = selectedColor;
-            
+
+            const actualColor = getActualColor(currentDotColor);
             document.querySelectorAll('.dot').forEach(dot => {
-                dot.style.background = currentDotColor;
+                dot.style.background = actualColor;
             });
-            
-            document.querySelector('.palette-btn').style.color = currentDotColor;
-            
+
+            if (selectedColor === 'default') {
+                document.querySelector('.palette-btn').style.color = '';
+            } else {
+                document.querySelector('.palette-btn').style.color = selectedColor;
+            }
+
             document.getElementById('colorDialogOverlay').classList.remove('show');
         }
 
@@ -723,10 +813,47 @@
             });
         });
 
+        // テーマを適用する関数
+        function applyTheme(theme) {
+            const html = document.documentElement;
+
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.setAttribute('data-theme', 'dark');
+                } else {
+                    html.removeAttribute('data-theme');
+                }
+            } else if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+
+            // テーマ変更時に色ダイアログのテキストも更新
+            updateColorDialogUI();
+        }
+
+        // テーマ設定を読み込む
+        function loadTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme && (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark')) {
+                    applyTheme(savedTheme);
+                } else {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
+                applyTheme('system');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
             loadLanguage();
             initSlots();
-            
+
             if (mode === 'St') {
                 document.querySelector('.palette-btn').style.display = 'none';
             }
@@ -734,7 +861,20 @@
 
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
+                loadTheme();
                 resetAllState();
+            }
+        });
+
+        // システムのダークモード設定の変更を監視
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (!savedTheme || savedTheme === 'system') {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to update theme:', e);
             }
         });
 
@@ -742,8 +882,8 @@
             zoneDots = [[], [], [], []];
             completedSymbols = [];
             currentSymbol = null;
-            currentDotColor = '#333';
-            selectedColor = '#333';
+            currentDotColor = 'default';
+            selectedColor = 'default';
             
             document.querySelectorAll('.tap-zone').forEach(zone => {
                 zone.querySelectorAll('.dot').forEach(dot => dot.remove());
@@ -763,10 +903,16 @@
             
             const okBtn = document.getElementById('okBtn');
             okBtn.classList.remove('active');
-            
+
             if (mode !== 'St') {
-                document.querySelector('.palette-btn').style.color = '#333';
+                document.querySelector('.palette-btn').style.color = '';
             }
+
+            // Reset color selection in dialog
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector('.color-option[data-color="default"]').classList.add('selected');
         }
     </script>
     <script src="common.js"></script>

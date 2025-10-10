@@ -4,9 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Single Figure Reading - Simple Geomancy</title>
+    <script>
+        // FOUC防止: DOMが構築される前にテーマを適用
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('simplegeomancy-theme') || 'system';
+                const html = document.documentElement;
+
+                if (savedTheme === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'system') {
+                    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.setAttribute('data-theme', 'dark');
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to apply initial theme:', e);
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+        :root {
+            --tap-zone-bg: #f0f0f0;
+            --tap-zone-active-bg: #ffffff;
+            --tap-zone-border: #c0c0c0;
+            --dot-color: #333333;
+            --line-color: #000000;
+            --bottom-area-bg: #d8d8d8;
+            --button-bg: #a8a8a8;
+            --button-text: #000000;
+            --button-holding-bg: #b0b0b0;
+            --button-active-bg: #909090;
+            --button-disabled-bg: #c8c8c8;
+            --button-disabled-text: #999999;
+            --dialog-bg: #ffffff;
+            --dialog-text: #333333;
+            --dialog-btn-color: #00897b;
+        }
+
+        [data-theme="dark"] {
+            --tap-zone-bg: #2d2d2d;
+            --tap-zone-active-bg: #3d3d3d;
+            --tap-zone-border: #555555;
+            --dot-color: #e0e0e0;
+            --line-color: #e0e0e0;
+            --bottom-area-bg: #1a1a1a;
+            --button-bg: #4d4d4d;
+            --button-text: #e0e0e0;
+            --button-holding-bg: #5d5d5d;
+            --button-active-bg: #3d3d3d;
+            --button-disabled-bg: #3a3a3a;
+            --button-disabled-text: #666666;
+            --dialog-bg: #2d2d2d;
+            --dialog-text: #e0e0e0;
+            --dialog-btn-color: #26a69a;
+        }
+
         body {
             touch-action: none;
         }
@@ -20,14 +75,14 @@
 
         .tap-zone {
             flex: 1;
-            background: #f0f0f0;
-            border-bottom: 2px solid #c0c0c0;
+            background: var(--tap-zone-bg);
+            border-bottom: 2px solid var(--tap-zone-border);
             position: relative;
             transition: background 0.3s ease;
         }
-        
+
         .tap-zone.active {
-            background: #ffffff;
+            background: var(--tap-zone-active-bg);
         }
 
         .tap-zone:last-child {
@@ -47,23 +102,24 @@
             position: absolute;
             width: 8px;
             height: 8px;
-            background: #333;
+            background: var(--dot-color);
             transform: translate(-50%, -50%) rotate(45deg);
             pointer-events: none;
         }
 
         .bottom-button-area {
-            background: #d8d8d8;
+            background: var(--bottom-area-bg);
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: background 0.3s ease;
         }
 
         .generate-button {
             font-family: 'Material Symbols Outlined';
-            background: #a8a8a8;
-            color: #000;
+            background: var(--button-bg);
+            color: var(--button-text);
             border: none;
             padding: 20px 60px;
             border-radius: 12px;
@@ -89,17 +145,17 @@
         }
 
         .generate-button.holding {
-            background: #b0b0b0;
+            background: var(--button-holding-bg);
         }
 
         .generate-button:active {
-            background: #909090;
+            background: var(--button-active-bg);
             transform: scale(0.95);
         }
 
         .generate-button.disabled {
-            background: #c8c8c8;
-            color: #999;
+            background: var(--button-disabled-bg);
+            color: var(--button-disabled-text);
             cursor: not-allowed;
             animation: none;
         }
@@ -122,11 +178,12 @@
         }
 
         .dialog {
-            background: white;
+            background: var(--dialog-bg);
             padding: 24px;
             max-width: 320px;
             width: 90%;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
         }
 
         .dialog-content {
@@ -140,10 +197,14 @@
             margin: 32px auto 16px auto;
         }
 
+        [data-theme="dark"] .dialog-symbol {
+            filter: invert(1);
+        }
+
         .dialog-btn {
             background: none;
             border: none;
-            color: #00897b;
+            color: var(--dialog-btn-color);
             font-size: 16px;
             font-weight: 600;
             padding: 8px 16px;
@@ -153,10 +214,11 @@
 
         .help-text {
             font-size: 16px;
-            color: #333;
+            color: var(--dialog-text);
             line-height: 1.8;
             margin: 24px 0;
             text-align: left;
+            transition: color 0.3s ease;
         }
     </style>
 </head>
@@ -194,7 +256,8 @@
     <script>
         // 言語設定のストレージキー
         const LANGUAGE_STORAGE_KEY = 'simplegeomancy-language';
-        
+        const THEME_STORAGE_KEY = 'simplegeomancy-theme';
+
         // 言語ごとのテキスト定義
         const translations = {
             en: {
@@ -300,44 +363,47 @@
         function drawPairingLines(zoneIndex, callback) {
             const canvas = document.querySelector(`[data-canvas="${zoneIndex}"]`);
             const ctx = canvas.getContext('2d');
-            
+
             const displayWidth = canvas.offsetWidth;
             const displayHeight = canvas.offsetHeight;
             const dpr = window.devicePixelRatio || 1;
-            
+
             // Set canvas size considering device pixel ratio for sharp rendering
             canvas.width = displayWidth * dpr;
             canvas.height = displayHeight * dpr;
-            
+
             // Scale context to match device pixel ratio
             ctx.scale(dpr, dpr);
-            
+
             const dots = zoneDots[zoneIndex];
             const totalPairs = Math.floor(dots.length / 2);
-            
+
+            // Get line color from CSS variable
+            const lineColor = getComputedStyle(document.documentElement).getPropertyValue('--line-color').trim();
+
             let pairIndex = 0;
-            
+
             function drawNextPair() {
                 if (pairIndex >= totalPairs) {
                     if (callback) callback();
                     return;
                 }
-                
+
                 const dot1 = dots[pairIndex * 2];
                 const dot2 = dots[pairIndex * 2 + 1];
-                
-                ctx.strokeStyle = '#000';
+
+                ctx.strokeStyle = lineColor;
                 ctx.lineWidth = 1;
                 ctx.lineCap = 'round';
                 ctx.beginPath();
                 ctx.moveTo(dot1.x, dot1.y);
                 ctx.lineTo(dot2.x, dot2.y);
                 ctx.stroke();
-                
+
                 pairIndex++;
                 setTimeout(drawNextPair, 100);
             }
-            
+
             drawNextPair();
         }
 
@@ -397,16 +463,16 @@
         function showResult() {
             const pattern = zoneDots.map(zone => zone.length % 2 === 0 ? '2' : '1').join('');
             const symbol = geomancySymbols[pattern] || { name: 'Unknown', meaning: '不明' };
-            
+
             const dialogContent = document.getElementById('dialogContent');
             dialogContent.innerHTML = `
                 <img src="${pattern}.png" class="dialog-symbol" alt="${symbol.name}">
-                <div style="font-size: 24px; font-family: Georgia, 'Times New Roman', serif; color: #333; margin-bottom: 20px;">${symbol.name}</div>
+                <div style="font-size: 24px; font-family: Georgia, 'Times New Roman', serif; color: var(--dialog-text); margin-bottom: 20px;">${symbol.name}</div>
                 <div style="text-align: right;">
                     <button class="dialog-btn" onclick="closeDialog()">OK</button>
                 </div>
             `;
-            
+
             document.getElementById('dialogOverlay').classList.add('show');
         }
 
@@ -465,7 +531,41 @@
             stopHolding();
         });
 
+        // テーマを適用する関数
+        function applyTheme(theme) {
+            const html = document.documentElement;
+
+            if (theme === 'system') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.setAttribute('data-theme', 'dark');
+                } else {
+                    html.removeAttribute('data-theme');
+                }
+            } else if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.removeAttribute('data-theme');
+            }
+        }
+
+        // テーマ設定を読み込む
+        function loadTheme() {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (savedTheme && (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark')) {
+                    applyTheme(savedTheme);
+                } else {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to load theme preference:', e);
+                applyTheme('system');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
             loadLanguage();
             // Initialize first zone as active
             const firstZone = document.querySelector('[data-zone="0"]');
@@ -476,6 +576,7 @@
 
         window.addEventListener('pageshow', (event) => {
             if (event.persisted) {
+                loadTheme();
                 loadLanguage();
                 resetScreen();
             } else {
@@ -484,6 +585,18 @@
                 if (firstZone && !firstZone.classList.contains('active')) {
                     firstZone.classList.add('active');
                 }
+            }
+        });
+
+        // システムのダークモード設定の変更を監視
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            try {
+                const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                if (!savedTheme || savedTheme === 'system') {
+                    applyTheme('system');
+                }
+            } catch (e) {
+                console.error('Failed to update theme:', e);
             }
         });
     </script>
