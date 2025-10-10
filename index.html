@@ -10,7 +10,166 @@
     <title>Simple Geomancy</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
+
+        .top-right-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .language-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .globe-icon {
+            color: #666;
+            font-size: 28px;
+        }
+
+        .language-dropdown {
+            padding: 6px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .language-dropdown:hover {
+            border-color: #999;
+        }
+
+        .language-dropdown:focus {
+            border-color: #3f51b5;
+        }
+
+        .help-icon {
+            color: #666;
+            text-decoration: none;
+            font-size: 32px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .help-icon:hover {
+            color: #333;
+        }
+
+        .settings-icon {
+            color: #666;
+            font-size: 32px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .settings-icon:hover {
+            color: #333;
+        }
+
+        .settings-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .settings-dialog-overlay.show {
+            display: flex;
+        }
+
+        .settings-dialog {
+            background: white;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-dialog-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            color: #333;
+        }
+
+        .settings-section {
+            margin-bottom: 16px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-row-label {
+            font-size: 16px;
+            color: #666;
+            min-width: 80px;
+        }
+
+        .settings-dropdown {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .settings-dropdown:hover {
+            border-color: #999;
+        }
+
+        .settings-dropdown:focus {
+            border-color: #3f51b5;
+        }
+
+
+        .settings-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+            gap: 12px;
+        }
+
+        .settings-dialog-btn {
+            background: none;
+            border: none;
+            color: #3f51b5;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
 
         .container {
             width: 100%;
@@ -82,62 +241,29 @@
             flex-shrink: 0;
         }
 
-        .language-selector {
-            display: flex;
-            gap: 20px;
-            flex-shrink: 0;
-        }
-
-        .language-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .radio {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #666;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .radio.selected {
-            border-color: #3f51b5;
-        }
-
-        .radio.selected::after {
-            content: '';
-            width: 12px;
-            height: 12px;
-            background: #3f51b5;
-            border-radius: 50%;
-        }
-
-        .language-label {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .spacer-lang {
-            height: 50px;
-            flex-shrink: 0;
-        }
-
-        .help-link {
-            font-size: 16px;
-            color: #333;
-            text-decoration: none;
-            flex-shrink: 0;
-        }
 
         .spacer-bottom {
-            height: 50px;
+            height: 30px;
             flex-shrink: 0;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .footer a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: #3f51b5;
+            text-decoration: underline;
         }
 
         @media (max-width: 480px) {
@@ -151,6 +277,44 @@
     </style>
 </head>
 <body>
+    <div class="top-right-controls">
+        <div class="language-control">
+            <span class="material-symbols-outlined globe-icon">language</span>
+            <select class="language-dropdown" id="languageDropdown" onchange="selectLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="ja">日本語</option>
+            </select>
+        </div>
+        <a href="Help.html" class="help-icon">
+            <span class="material-symbols-outlined">help</span>
+        </a>
+        <button class="settings-icon" onclick="openSettingsDialog()">
+            <span class="material-symbols-outlined">settings</span>
+        </button>
+    </div>
+
+    <div class="settings-dialog-overlay" id="settingsDialogOverlay" onclick="closeSettingsDialogOnOverlay(event)">
+        <div class="settings-dialog" onclick="event.stopPropagation()">
+            <div class="settings-dialog-title" id="settingsTitle">設定</div>
+
+            <div class="settings-section">
+                <div class="settings-row">
+                    <label class="settings-row-label" id="themeLabel">テーマ</label>
+                    <select class="settings-dropdown" id="themeDropdown" onchange="selectTheme(this.value)">
+                        <option value="system" id="themeSystem">システム設定に従う</option>
+                        <option value="light" id="themeLight">ライト</option>
+                        <option value="dark" id="themeDark">ダーク</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-dialog-actions">
+                <button class="settings-dialog-btn" id="settingsCloseBtn" onclick="closeSettingsDialog()">閉じる</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="spacer-top"></div>
         
@@ -174,28 +338,11 @@
             ワンオラクル
         </a>
         
-        <div class="spacer-button-3"></div>
-        
-        <div class="language-selector">
-            <div class="language-option" onclick="selectLanguage('en')">
-                <div class="radio" id="radio-en"></div>
-                <span class="language-label">English</span>
-            </div>
-            <div class="language-option" onclick="selectLanguage('fr')">
-                <div class="radio" id="radio-fr"></div>
-                <span class="language-label">Français</span>
-            </div>
-            <div class="language-option" onclick="selectLanguage('ja')">
-                <div class="radio" id="radio-ja"></div>
-                <span class="language-label">日本語</span>
-            </div>
-        </div>
-        
-        <div class="spacer-lang"></div>
-        
-        <a href="Help.html" class="help-link" id="helpLink">ヘルプ</a>
-        
         <div class="spacer-bottom"></div>
+
+        <div class="footer">
+            &copy; <span id="copyrightYear">2019</span> <a href="https://x.com/msonrm" target="_blank" rel="noopener noreferrer">msonrm</a>
+        </div>
     </div>
 
     <script>
@@ -208,19 +355,34 @@
                 btnScHc: 'Shield Chart & House Chart',
                 btnSt: 'Simple Three-Figure Reading',
                 btnOo: 'Single Figure Reading',
-                helpLink: 'Help'
+                settingsTitle: 'Settings',
+                themeLabel: 'Theme',
+                themeSystem: 'Follow system',
+                themeLight: 'Light',
+                themeDark: 'Dark',
+                settingsCloseBtn: 'Close'
             },
             fr: {
                 btnScHc: 'Écu et Maisons géomantiques',
                 btnSt: 'Lecture à Trois Figures',
                 btnOo: 'Lecture à Une Figure',
-                helpLink: 'Aide'
+                settingsTitle: 'Paramètres',
+                themeLabel: 'Thème',
+                themeSystem: 'Suivre le système',
+                themeLight: 'Clair',
+                themeDark: 'Sombre',
+                settingsCloseBtn: 'Fermer'
             },
             ja: {
                 btnScHc: 'シールドチャート&ハウスチャート',
                 btnSt: 'シンプル・トリプシティ',
                 btnOo: 'ワンオラクル',
-                helpLink: 'ヘルプ'
+                settingsTitle: '設定',
+                themeLabel: 'テーマ',
+                themeSystem: 'システム設定に従う',
+                themeLight: 'ライト',
+                themeDark: 'ダーク',
+                settingsCloseBtn: '閉じる'
             }
         };
 
@@ -228,14 +390,9 @@
 
         // 言語を選択する関数
         function selectLanguage(lang) {
-            // すべてのラジオボタンから選択状態を削除
-            document.querySelectorAll('.radio').forEach(radio => {
-                radio.classList.remove('selected');
-            });
-            
-            // 選択されたラジオボタンに選択状態を追加
-            document.getElementById(`radio-${lang}`).classList.add('selected');
-            
+            // ドロップダウンの選択状態を更新
+            document.getElementById('languageDropdown').value = lang;
+
             currentLanguage = lang;
             
             // localStorageに保存（PWA/TWA対応）
@@ -255,11 +412,39 @@
         // UIのテキストを更新する関数
         function updateUI(lang) {
             const texts = translations[lang];
-            
+
             document.getElementById('btnScHc').textContent = texts.btnScHc;
             document.getElementById('btnSt').textContent = texts.btnSt;
             document.getElementById('btnOo').textContent = texts.btnOo;
-            document.getElementById('helpLink').textContent = texts.helpLink;
+            document.getElementById('settingsTitle').textContent = texts.settingsTitle;
+            document.getElementById('themeLabel').textContent = texts.themeLabel;
+            document.getElementById('themeSystem').textContent = texts.themeSystem;
+            document.getElementById('themeLight').textContent = texts.themeLight;
+            document.getElementById('themeDark').textContent = texts.themeDark;
+            document.getElementById('settingsCloseBtn').textContent = texts.settingsCloseBtn;
+        }
+
+        // 設定ダイアログを開く
+        function openSettingsDialog() {
+            document.getElementById('settingsDialogOverlay').classList.add('show');
+        }
+
+        // 設定ダイアログを閉じる
+        function closeSettingsDialog() {
+            document.getElementById('settingsDialogOverlay').classList.remove('show');
+        }
+
+        // オーバーレイクリックで閉じる
+        function closeSettingsDialogOnOverlay(event) {
+            if (event.target.id === 'settingsDialogOverlay') {
+                closeSettingsDialog();
+            }
+        }
+
+        // テーマを選択（未実装）
+        function selectTheme(theme) {
+            document.getElementById('themeDropdown').value = theme;
+            // TODO: テーマ変更の実装
         }
 
         // システム言語を検出する関数
@@ -303,11 +488,21 @@
             return { language: detectedLanguage, isFirstVisit: isFirstVisit };
         }
 
+        // 著作権年号を更新する関数
+        function updateCopyrightYear() {
+            const currentYear = new Date().getFullYear();
+            const yearText = currentYear > 2019 ? `2019-${currentYear}` : '2019';
+            document.getElementById('copyrightYear').textContent = yearText;
+        }
+
         // ページ読み込み時の初期化
         window.addEventListener('DOMContentLoaded', () => {
             const result = loadLanguagePreference();
             selectLanguage(result.language);
-            
+
+            // 著作権年号を更新
+            updateCopyrightYear();
+
             // 初回訪問時はシステム言語検出結果をログに出力（デバッグ用）
             if (result.isFirstVisit) {
                 console.log('First visit detected. System language set to:', result.language);
