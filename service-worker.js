@@ -21,19 +21,19 @@ if (workbox) {
 
   // プリキャッシュ（初回インストール時にキャッシュ）
   workbox.precaching.precacheAndRoute([
-    { url: '/SG-TWA/', revision: '10' },
-    { url: '/SG-TWA/index.html', revision: '10' },
-    { url: '/SG-TWA/dots.html', revision: '10' },
-    { url: '/SG-TWA/ScHc.html', revision: '10' },
-    { url: '/SG-TWA/St.html', revision: '10' },
-    { url: '/SG-TWA/Oo.html', revision: '10' },
-    { url: '/SG-TWA/Help.html', revision: '10' },
-    { url: '/SG-TWA/common.css', revision: '10' },
-    { url: '/SG-TWA/common.js', revision: '10' },
-    { url: '/SG-TWA/manifest.json', revision: '10' },
-    { url: '/SG-TWA/TitleLogo.png', revision: '3' },
-    { url: '/SG-TWA/Icon_192.png', revision: '2' },
-    { url: '/SG-TWA/Icon_512.png', revision: '2' }
+    { url: '/', revision: '10' },
+    { url: '/index.html', revision: '10' },
+    { url: '/dots.html', revision: '10' },
+    { url: '/ScHc.html', revision: '10' },
+    { url: '/St.html', revision: '10' },
+    { url: '/Oo.html', revision: '10' },
+    { url: '/Help.html', revision: '10' },
+    { url: '/common.css', revision: '10' },
+    { url: '/common.js', revision: '10' },
+    { url: '/manifest.json', revision: '10' },
+    { url: '/TitleLogo.png', revision: '3' },
+    { url: '/Icon_192.png', revision: '2' },
+    { url: '/Icon_512.png', revision: '2' }
   ]);
 
   // HTML: Network First（常に最新を取得、オフライン時のみキャッシュ使用）
@@ -105,7 +105,7 @@ if (workbox) {
   workbox.routing.registerRoute(
     ({ url }) => {
       const pathname = url.pathname;
-      return pathname.match(/\/SG-TWA\/\d{4}\.png$/);
+      return pathname.match(/\/\d{4}\.png$/);
     },
     new workbox.strategies.CacheFirst({
       cacheName: 'simple-geomancy-symbols-v10',
