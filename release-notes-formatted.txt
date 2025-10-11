@@ -1,5 +1,5 @@
 <en-US>
-Version 2.0 - Major Update!
+Version 2.0.1 - Major Update!
 
 Completely rebuilt with cutting-edge technology for enhanced stability and performance!
 
