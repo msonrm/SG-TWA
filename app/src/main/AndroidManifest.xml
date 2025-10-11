@@ -131,11 +131,14 @@
             <meta-data android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION"
                 android:value="@string/orientation"/>
 
-            
+            <meta-data android:name="android.support.customtabs.trusted.DISPLAY_MODE"
+                android:value="immersive" />
 
-            
 
-            
+
+
+
+
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

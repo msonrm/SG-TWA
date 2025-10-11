@@ -10,7 +10,7 @@
   "navigationColorDark": "#000000",
   "navigationDividerColor": "#000000",
   "navigationDividerColorDark": "#000000",
-  "backgroundColor": "#FFFFFF",
+  "backgroundColor": "#607D8B",
   "enableNotifications": false,
   "startUrl": "/SG-TWA/",
   "iconUrl": "https://msonrm.github.io/SG-TWA/Icon_512.png",
@@ -21,8 +21,8 @@
     "path": "/workspaces/SG-TWA/android.keystore",
     "alias": "androidkey"
   },
-  "appVersionName": "y",
-  "appVersionCode": 17,
+  "appVersionName": "2.0.1",
+  "appVersionCode": 18,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://msonrm.github.io/SG-TWA/manifest.json",
@@ -40,5 +40,5 @@
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "y"
+  "appVersion": "2.0.1"
 }

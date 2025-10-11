@@ -32,7 +32,7 @@ def twaManifest = [
     navigationColorDark: '#000000', // The color used for the dark navbar.
     navigationDividerColor: '#000000', // The navbar divider color.
     navigationDividerColorDark: '#000000', // The dark navbar divider color.
-    backgroundColor: '#FFFFFF', // The color used for the splash screen background.
+    backgroundColor: '#607D8B', // The color used for the splash screen background.
     enableNotifications: false, // Set to true to enable notification delegation.
     // Every shortcut must include the following fields:
     // - name: String that will show up in the shortcut.
@@ -53,12 +53,22 @@ def twaManifest = [
 android {
     compileSdkVersion 36
     namespace "io.kodular.msonrm.SimpleGeomancy"
+
+    signingConfigs {
+        release {
+            storeFile file("../android.keystore")
+            storePassword System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias "androidkey"
+            keyPassword System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     defaultConfig {
         applicationId "io.kodular.msonrm.SimpleGeomancy"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 17
-        versionName "2.0"
+        versionCode 18
+        versionName "2.0.1"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -150,6 +160,7 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
