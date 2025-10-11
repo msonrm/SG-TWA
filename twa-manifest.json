@@ -1,6 +1,6 @@
 {
   "packageId": "io.kodular.msonrm.SimpleGeomancy",
-  "host": "msonrm.github.io",
+  "host": "simple-geomancy-twa.web.app",
   "name": "Simple Geomancy",
   "launcherName": "Geomancy",
   "display": "standalone",
@@ -12,10 +12,10 @@
   "navigationDividerColorDark": "#000000",
   "backgroundColor": "#607D8B",
   "enableNotifications": false,
-  "startUrl": "/SG-TWA/",
-  "iconUrl": "https://msonrm.github.io/SG-TWA/Icon_512.png",
-  "maskableIconUrl": "https://msonrm.github.io/SG-TWA/Icon_512.png",
-  "monochromeIconUrl": "https://msonrm.github.io/SG-TWA/Icon_512.png",
+  "startUrl": "/",
+  "iconUrl": "https://simple-geomancy-twa.web.app/Icon_512.png",
+  "maskableIconUrl": "https://simple-geomancy-twa.web.app/Icon_512.png",
+  "monochromeIconUrl": "https://simple-geomancy-twa.web.app/Icon_512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "/workspaces/SG-TWA/android.keystore",
@@ -25,7 +25,7 @@
   "appVersionCode": 18,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://msonrm.github.io/SG-TWA/manifest.json",
+  "webManifestUrl": "https://simple-geomancy-twa.web.app/manifest.json",
   "fallbackType": "customtabs",
   "features": {},
   "alphaDependencies": {
