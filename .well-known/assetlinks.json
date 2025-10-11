@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "io.kodular.msonrm.SimpleGeomancy",
-      "sha256_cert_fingerprints": [
-        "77:FD:E2:BD:63:C2:46:3A:BE:60:51:C8:A8:6A:68:9A:CD:3E:8A:31:73:94:C3:04:E7:89:D4:93:E0:8A:91:65"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.kodular.msonrm.SimpleGeomancy",
+    "sha256_cert_fingerprints": ["77:FD:E2:BD:63:C2:46:3A:BE:60:51:C8:A8:6A:68:9A:CD:3E:8A:31:73:94:C3:04:E7:89:D4:93:E0:8A:91:65"]
   }
-]
+}]
