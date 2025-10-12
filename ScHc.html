@@ -98,8 +98,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             padding-top: 10vw;
+            padding-bottom: 10vw;
         }
 
         #shieldCanvas, #houseCanvas1, #houseCanvas2 {
@@ -110,7 +111,6 @@
 
         .chart-info {
             text-align: center;
-            margin-top: 20px;
         }
 
         .chart-title {
@@ -157,6 +157,12 @@
         <div class="charts-wrapper" id="chartsWrapper">
             <div class="chart-container" id="shieldChart">
                 <canvas id="shieldCanvas"></canvas>
+                <div class="chart-info">
+                    <label class="chart-checkbox-label">
+                        <input type="checkbox" id="showReconcilerCheck" class="chart-checkbox">
+                        <span class="chart-checkbox-text" id="reconcilerLabel">調停者を表示する</span>
+                    </label>
+                </div>
             </div>
 
             <div class="chart-container" id="houseChart1">
@@ -197,7 +203,8 @@
                 tab2: 'House Chart 2',
                 houseTitle1: 'House Chart (Traditional)',
                 houseTitle2: 'House Chart (Golden Dawn)',
-                witnessLabel: 'Show Witnesses and Judge'
+                witnessLabel: 'Show Witnesses and Judge',
+                reconcilerLabel: 'Show Reconciler'
             },
             fr: {
                 pageTitle: 'Écu et Maisons géomantiques',
@@ -206,7 +213,8 @@
                 tab2: 'Thème Maisons 2',
                 houseTitle1: 'Maisons (Traditionnel)',
                 houseTitle2: 'Maisons (Golden Dawn)',
-                witnessLabel: 'Afficher les Témoins et le Juge'
+                witnessLabel: 'Afficher les Témoins et le Juge',
+                reconcilerLabel: 'Afficher le Réconciliateur'
             },
             ja: {
                 pageTitle: 'シールド&ハウスチャート',
@@ -215,7 +223,8 @@
                 tab2: 'ハウスチャート2',
                 houseTitle1: 'ハウスチャート（伝統的）',
                 houseTitle2: 'ハウスチャート（黄金の夜明け団）',
-                witnessLabel: '左右の証人と裁判官を表示する'
+                witnessLabel: '左右の証人と裁判官を表示する',
+                reconcilerLabel: '調停者を表示する'
             }
         };
 
@@ -238,7 +247,7 @@
         // UIのテキストを更新
         function updateUI() {
             const texts = translations[currentLanguage];
-            
+
             document.title = `${texts.pageTitle} - Simple Geomancy`;
             document.getElementById('tab0').textContent = texts.tab0;
             document.getElementById('tab1').textContent = texts.tab1;
@@ -247,6 +256,7 @@
             document.getElementById('houseTitle2').textContent = texts.houseTitle2;
             document.getElementById('witnessLabel1').textContent = texts.witnessLabel;
             document.getElementById('witnessLabel2').textContent = texts.witnessLabel;
+            document.getElementById('reconcilerLabel').textContent = texts.reconcilerLabel;
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -263,7 +273,7 @@
 
         function calculateShieldData() {
             const daughters = generateDaughters(mothers);
-            
+
             const nieces = [
                 addSymbols(mothers[0], mothers[1]),
                 addSymbols(mothers[2], mothers[3]),
@@ -277,13 +287,15 @@
             ];
 
             const judge = addSymbols(witnesses[0], witnesses[1]);
+            const reconciler = addSymbols(judge, mothers[0]);
 
             return {
                 mothers: mothers,
                 daughters: daughters,
                 nieces: nieces,
                 witnesses: witnesses,
-                judge: judge
+                judge: judge,
+                reconciler: reconciler
             };
         }
         
@@ -511,12 +523,12 @@
 
         function drawShieldChart() {
             const { canvasWidth, canvasHeight, unit } = getCanvasSize();
-            
+
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             drawGrid();
 
             const daughters = generateDaughters(mothers);
-            
+
             const nieces = [
                 addSymbols(mothers[0], mothers[1]),
                 addSymbols(mothers[2], mothers[3]),
@@ -530,6 +542,7 @@
             ];
 
             const judge = addSymbols(witnesses[0], witnesses[1]);
+            const reconciler = addSymbols(judge, mothers[0]);
 
             const allSymbols = [...daughters, ...mothers, ...nieces, ...witnesses, judge];
             let loadedCount = 0;
@@ -581,9 +594,59 @@
 
                 const row4Height = unit * 2;
                 const y4 = unit * 7;
-                
+
                 drawSymbol(judge, unit, y4, unit * 8, row4Height);
+
+                // Draw reconciler if checkbox is checked
+                const checkbox = document.getElementById('showReconcilerCheck');
+                if (checkbox && checkbox.checked) {
+                    drawReconciler(reconciler);
+                }
             }
+        }
+
+        function drawReconciler(reconcilerPattern) {
+            const { unit } = getCanvasSize();
+
+            // Position reconciler at bottom-right corner, aligned with judge's row
+            const x = unit * 9.1;
+            const y = unit * 7.25;
+
+            const img = new Image();
+            img.src = `${reconcilerPattern}.png`;
+
+            img.onload = () => {
+                const imgAspect = 2 / 3;
+                const baseWidth = unit * 0.8;
+                const baseHeight = baseWidth / imgAspect;
+
+                // Check if dark mode is active
+                const isDark = document.documentElement.hasAttribute('data-theme') &&
+                              document.documentElement.getAttribute('data-theme') === 'dark';
+
+                if (isDark) {
+                    // Create a temporary canvas to apply invert filter
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = baseWidth * (window.devicePixelRatio || 1);
+                    tempCanvas.height = baseHeight * (window.devicePixelRatio || 1);
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    tempCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+                    tempCtx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+                    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];
+                        data[i + 1] = 255 - data[i + 1];
+                        data[i + 2] = 255 - data[i + 2];
+                    }
+                    tempCtx.putImageData(imageData, 0, 0);
+                    ctx.drawImage(tempCanvas, x, y, baseWidth, baseHeight);
+                } else {
+                    ctx.drawImage(img, x, y, baseWidth, baseHeight);
+                }
+            };
         }
 
         function initHouseChart1() {
@@ -952,15 +1015,25 @@
             drawShieldChart();
             initHouseChart1();
             initHouseChart2();
-            
+
+            // Add event listener for reconciler checkbox
+            const reconcilerCheckbox = document.getElementById('showReconcilerCheck');
+            if (reconcilerCheckbox) {
+                reconcilerCheckbox.addEventListener('change', () => {
+                    drawShieldChart();
+                });
+            }
+
             const checkboxes = [
+                document.getElementById('showReconcilerCheck'),
                 document.getElementById('showWitnessesCheck'),
                 document.getElementById('showWitnessesCheck2')
             ];
-            
+
             checkboxes.forEach(checkbox => {
+                if (!checkbox) return;
                 const label = checkbox.closest('label');
-                
+
                 [checkbox, label].forEach(element => {
                     element.addEventListener('touchstart', (e) => {
                         e.stopPropagation();
