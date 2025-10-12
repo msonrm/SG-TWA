@@ -608,16 +608,16 @@
         function drawReconciler(reconcilerPattern) {
             const { unit } = getCanvasSize();
 
-            // Position reconciler at bottom-right corner, aligned with judge's row
-            const x = unit * 9.1;
-            const y = unit * 7.25;
+            // Position reconciler inside grid at 4th row, right side (between M1 and M2)
+            const x = unit * 6.5;
+            const y = unit * 7;
 
             const img = new Image();
             img.src = `${reconcilerPattern}.png`;
 
             img.onload = () => {
                 const imgAspect = 2 / 3;
-                const baseWidth = unit * 0.8;
+                const baseWidth = unit;
                 const baseHeight = baseWidth / imgAspect;
 
                 // Check if dark mode is active
@@ -647,6 +647,31 @@
                     ctx.drawImage(img, x, y, baseWidth, baseHeight);
                 }
             };
+        }
+
+        function toggleReconciler() {
+            const { unit } = getCanvasSize();
+            const checkbox = document.getElementById('showReconcilerCheck');
+
+            // Clear only the reconciler area
+            const x = unit * 6.5;
+            const y = unit * 7;
+            const imgAspect = 2 / 3;
+            const baseWidth = unit;
+            const baseHeight = baseWidth / imgAspect;
+
+            // Get background color
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim();
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(x, y, baseWidth, baseHeight);
+
+            // Redraw reconciler if checkbox is checked
+            if (checkbox.checked) {
+                if (!shieldChartData) {
+                    shieldChartData = calculateShieldData();
+                }
+                drawReconciler(shieldChartData.reconciler);
+            }
         }
 
         function initHouseChart1() {
@@ -1019,9 +1044,7 @@
             // Add event listener for reconciler checkbox
             const reconcilerCheckbox = document.getElementById('showReconcilerCheck');
             if (reconcilerCheckbox) {
-                reconcilerCheckbox.addEventListener('change', () => {
-                    drawShieldChart();
-                });
+                reconcilerCheckbox.addEventListener('change', toggleReconciler);
             }
 
             const checkboxes = [
