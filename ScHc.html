@@ -608,8 +608,8 @@
         function drawReconciler(reconcilerPattern) {
             const { unit } = getCanvasSize();
 
-            // Position reconciler inside grid at 4th row, right side (between M1 and M2)
-            const x = unit * 6.5;
+            // Position reconciler at X: niece[0] column, Y: judge row
+            const x = unit * 7;
             const y = unit * 7;
 
             const img = new Image();
@@ -654,7 +654,7 @@
             const checkbox = document.getElementById('showReconcilerCheck');
 
             // Clear only the reconciler area
-            const x = unit * 6.5;
+            const x = unit * 7;
             const y = unit * 7;
             const imgAspect = 2 / 3;
             const baseWidth = unit;
