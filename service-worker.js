@@ -1,6 +1,6 @@
 // Simple Geomancy Service Worker (Workboxなし)
 // バージョン管理
-const CACHE_VERSION = 'v10';
+const CACHE_VERSION = 'v11';
 const CACHE_PREFIX = 'simple-geomancy';
 
 // キャッシュ名
@@ -27,7 +27,24 @@ const PRECACHE_URLS = [
   '/manifest.json',
   '/TitleLogo.png',
   '/Icon_192.png',
-  '/Icon_512.png'
+  '/Icon_512.png',
+  // シンボル画像（16個）
+  '/1111.png',
+  '/1112.png',
+  '/1121.png',
+  '/1122.png',
+  '/1211.png',
+  '/1212.png',
+  '/1221.png',
+  '/1222.png',
+  '/2111.png',
+  '/2112.png',
+  '/2121.png',
+  '/2122.png',
+  '/2211.png',
+  '/2212.png',
+  '/2221.png',
+  '/2222.png'
 ];
 
 // インストールイベント: プリキャッシュ
