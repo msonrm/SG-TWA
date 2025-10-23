@@ -1,156 +1,192 @@
-// Workbox CDNから読み込み
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
+// Simple Geomancy Service Worker (Workboxなし)
+// バージョン管理
+const CACHE_VERSION = 'v10';
+const CACHE_PREFIX = 'simple-geomancy';
 
-if (workbox) {
-  console.log('Workbox loaded successfully');
+// キャッシュ名
+const CACHE_NAMES = {
+  precache: `${CACHE_PREFIX}-precache-${CACHE_VERSION}`,
+  html: `${CACHE_PREFIX}-html-${CACHE_VERSION}`,
+  assets: `${CACHE_PREFIX}-assets-${CACHE_VERSION}`,
+  images: `${CACHE_PREFIX}-images-${CACHE_VERSION}`,
+  fonts: `${CACHE_PREFIX}-fonts-${CACHE_VERSION}`,
+  symbols: `${CACHE_PREFIX}-symbols-${CACHE_VERSION}`
+};
 
-  // デバッグログを有効化（開発時のみ）
-  // workbox.setConfig({ debug: false });
+// プリキャッシュするファイル（初回インストール時）
+const PRECACHE_URLS = [
+  '/',
+  '/index.html',
+  '/dots.html',
+  '/ScHc.html',
+  '/St.html',
+  '/Oo.html',
+  '/Help.html',
+  '/common.css',
+  '/common.js',
+  '/manifest.json',
+  '/TitleLogo.png',
+  '/Icon_192.png',
+  '/Icon_512.png'
+];
 
-  // キャッシュ名のプレフィックス
-  workbox.core.setCacheNameDetails({
-    prefix: 'simple-geomancy',
-    suffix: 'v10',
-    precache: 'precache',
-    runtime: 'runtime'
-  });
+// インストールイベント: プリキャッシュ
+self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
 
-  // 古いキャッシュを自動削除
-  workbox.core.clientsClaim();
-  self.skipWaiting();
-
-  // プリキャッシュ（初回インストール時にキャッシュ）
-  workbox.precaching.precacheAndRoute([
-    { url: '/', revision: '10' },
-    { url: '/index.html', revision: '10' },
-    { url: '/dots.html', revision: '10' },
-    { url: '/ScHc.html', revision: '10' },
-    { url: '/St.html', revision: '10' },
-    { url: '/Oo.html', revision: '10' },
-    { url: '/Help.html', revision: '10' },
-    { url: '/common.css', revision: '10' },
-    { url: '/common.js', revision: '10' },
-    { url: '/manifest.json', revision: '10' },
-    { url: '/TitleLogo.png', revision: '3' },
-    { url: '/Icon_192.png', revision: '2' },
-    { url: '/Icon_512.png', revision: '2' }
-  ]);
-
-  // HTML: Network First（常に最新を取得、オフライン時のみキャッシュ使用）
-  workbox.routing.registerRoute(
-    ({ request }) => request.destination === 'document',
-    new workbox.strategies.NetworkFirst({
-      cacheName: 'simple-geomancy-html-v10',
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 10,
-          maxAgeSeconds: 7 * 24 * 60 * 60, // 7日
-        }),
-      ],
-    })
+  event.waitUntil(
+    caches.open(CACHE_NAMES.precache)
+      .then((cache) => {
+        console.log('Service Worker: Precaching files');
+        return cache.addAll(PRECACHE_URLS);
+      })
+      .then(() => {
+        console.log('Service Worker: Precaching complete');
+        return self.skipWaiting(); // 即座にアクティブ化
+      })
   );
+});
 
-  // CSS/JS: Stale While Revalidate（即座にキャッシュを返し、バックグラウンドで更新）
-  workbox.routing.registerRoute(
-    ({ request }) =>
-      request.destination === 'style' ||
-      request.destination === 'script',
-    new workbox.strategies.StaleWhileRevalidate({
-      cacheName: 'simple-geomancy-assets-v10',
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 20,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30日
-        }),
-      ],
-    })
-  );
+// アクティベートイベント: 古いキャッシュを削除
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating...');
 
-  // 画像: Cache First（長期間キャッシュ、オフライン対応）
-  workbox.routing.registerRoute(
-    ({ request }) => request.destination === 'image',
-    new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-images-v10',
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 50,
-          maxAgeSeconds: 90 * 24 * 60 * 60, // 90日
-        }),
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200],
-        }),
-      ],
-    })
-  );
+  const currentCaches = Object.values(CACHE_NAMES);
 
-  // Google Fonts: Cache First（フォントは変更されないため）
-  workbox.routing.registerRoute(
-    ({ url }) => url.origin === 'https://fonts.googleapis.com' ||
-                 url.origin === 'https://fonts.gstatic.com',
-    new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-fonts-v10',
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 10,
-          maxAgeSeconds: 365 * 24 * 60 * 60, // 1年
-        }),
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200],
-        }),
-      ],
-    })
-  );
-
-  // シンボル画像専用: Cache First（16個の固定シンボル）
-  workbox.routing.registerRoute(
-    ({ url }) => {
-      const pathname = url.pathname;
-      return pathname.match(/\/\d{4}\.png$/);
-    },
-    new workbox.strategies.CacheFirst({
-      cacheName: 'simple-geomancy-symbols-v10',
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({
-          maxEntries: 16,
-          maxAgeSeconds: 365 * 24 * 60 * 60, // 1年（シンボルは変更されない）
-        }),
-        new workbox.cacheableResponse.CacheableResponsePlugin({
-          statuses: [0, 200],
-        }),
-      ],
-    })
-  );
-
-  // 古いバージョンのキャッシュを削除
-  const CURRENT_CACHES = [
-    'simple-geomancy-html-v10',
-    'simple-geomancy-assets-v10',
-    'simple-geomancy-images-v10',
-    'simple-geomancy-fonts-v10',
-    'simple-geomancy-symbols-v10',
-    'simple-geomancy-precache-v10',
-    'simple-geomancy-runtime-v10'
-  ];
-
-  self.addEventListener('activate', (event) => {
-    event.waitUntil(
-      caches.keys().then((cacheNames) => {
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => {
         return Promise.all(
           cacheNames
             .filter((cacheName) => {
               // simple-geomancyで始まるが、現在のバージョンではないキャッシュを削除
-              return cacheName.startsWith('simple-geomancy') &&
-                     !CURRENT_CACHES.some(current => cacheName.includes(current.replace(/-v\d+$/, '')));
+              return cacheName.startsWith(CACHE_PREFIX) &&
+                     !currentCaches.includes(cacheName);
             })
             .map((cacheName) => {
-              console.log('Deleting old cache:', cacheName);
+              console.log('Service Worker: Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             })
         );
       })
-    );
+      .then(() => {
+        console.log('Service Worker: Activated');
+        return self.clients.claim(); // 即座に制御開始
+      })
+  );
+});
+
+// フェッチイベント: キャッシュ戦略を適用
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // HTMLドキュメント: Network First
+  if (request.destination === 'document') {
+    event.respondWith(networkFirst(request, CACHE_NAMES.html));
+    return;
+  }
+
+  // CSS/JS: Stale While Revalidate
+  if (request.destination === 'style' || request.destination === 'script') {
+    event.respondWith(staleWhileRevalidate(request, CACHE_NAMES.assets));
+    return;
+  }
+
+  // Google Fonts: Cache First
+  if (url.origin === 'https://fonts.googleapis.com' ||
+      url.origin === 'https://fonts.gstatic.com') {
+    event.respondWith(cacheFirst(request, CACHE_NAMES.fonts));
+    return;
+  }
+
+  // シンボル画像 (1111.png - 2222.png): Cache First
+  if (url.pathname.match(/\/\d{4}\.png$/)) {
+    event.respondWith(cacheFirst(request, CACHE_NAMES.symbols));
+    return;
+  }
+
+  // その他の画像: Cache First
+  if (request.destination === 'image') {
+    event.respondWith(cacheFirst(request, CACHE_NAMES.images));
+    return;
+  }
+
+  // その他のリクエスト: ネットワーク優先、フォールバックでキャッシュ
+  event.respondWith(
+    fetch(request).catch(() => {
+      return caches.match(request);
+    })
+  );
+});
+
+// キャッシュ戦略: Network First
+// 常に最新を取得、オフライン時のみキャッシュ使用
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+
+    if (networkResponse && networkResponse.status === 200) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+
+    return networkResponse;
+  } catch (error) {
+    console.log('Network First: Network failed, trying cache:', request.url);
+    const cachedResponse = await caches.match(request);
+
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    throw error;
+  }
+}
+
+// キャッシュ戦略: Cache First
+// 長期間キャッシュ、オフライン対応
+async function cacheFirst(request, cacheName) {
+  const cachedResponse = await caches.match(request);
+
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  try {
+    const networkResponse = await fetch(request);
+
+    if (networkResponse && networkResponse.status === 200) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+
+    return networkResponse;
+  } catch (error) {
+    console.log('Cache First: Both cache and network failed:', request.url);
+    throw error;
+  }
+}
+
+// キャッシュ戦略: Stale While Revalidate
+// 即座にキャッシュを返し、バックグラウンドで更新
+async function staleWhileRevalidate(request, cacheName) {
+  const cachedResponse = await caches.match(request);
+
+  const fetchPromise = fetch(request).then((networkResponse) => {
+    if (networkResponse && networkResponse.status === 200) {
+      const cache = caches.open(cacheName).then((cache) => {
+        cache.put(request, networkResponse.clone());
+      });
+    }
+    return networkResponse;
+  }).catch((error) => {
+    console.log('Stale While Revalidate: Network update failed:', request.url);
+    return null;
   });
 
-} else {
-  console.error('Workbox failed to load');
+  // キャッシュがあれば即座に返す、なければネットワークを待つ
+  return cachedResponse || fetchPromise;
 }
+
+console.log('Service Worker: Script loaded successfully (Workbox-free)');
