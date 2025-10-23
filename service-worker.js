@@ -115,7 +115,7 @@ self.addEventListener('fetch', (event) => {
   // その他のリクエスト: ネットワーク優先、フォールバックでキャッシュ
   event.respondWith(
     fetch(request).catch(() => {
-      return caches.match(request);
+      return caches.match(request, { ignoreSearch: true });
     })
   );
 });
@@ -134,7 +134,7 @@ async function networkFirst(request, cacheName) {
     return networkResponse;
   } catch (error) {
     console.log('Network First: Network failed, trying cache:', request.url);
-    const cachedResponse = await caches.match(request);
+    const cachedResponse = await caches.match(request, { ignoreSearch: true });
 
     if (cachedResponse) {
       return cachedResponse;
@@ -147,7 +147,7 @@ async function networkFirst(request, cacheName) {
 // キャッシュ戦略: Cache First
 // 長期間キャッシュ、オフライン対応
 async function cacheFirst(request, cacheName) {
-  const cachedResponse = await caches.match(request);
+  const cachedResponse = await caches.match(request, { ignoreSearch: true });
 
   if (cachedResponse) {
     return cachedResponse;
@@ -171,7 +171,7 @@ async function cacheFirst(request, cacheName) {
 // キャッシュ戦略: Stale While Revalidate
 // 即座にキャッシュを返し、バックグラウンドで更新
 async function staleWhileRevalidate(request, cacheName) {
-  const cachedResponse = await caches.match(request);
+  const cachedResponse = await caches.match(request, { ignoreSearch: true });
 
   const fetchPromise = fetch(request).then((networkResponse) => {
     if (networkResponse && networkResponse.status === 200) {
